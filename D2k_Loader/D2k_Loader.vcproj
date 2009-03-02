@@ -154,7 +154,6 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="$(ProjectName).exe.manifest"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
