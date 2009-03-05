@@ -163,22 +163,29 @@ void _LogDXError(HRESULT ret) {
 	}
 }
 
-void HookVTBLCalls(LPVOID *ppvObj, SVTBL_HOOK *vtbl_hooks, const unsigned int count_vtbl_hooks, const char *cstrInterface) {
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/* This function is called from the QueryInterface() functions and tells us how to intercept that group
+   of functions */
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+void HookVTBLCalls(LPVOID *ppvObj, SVTBL_HOOK *vtbl_hooks, const unsigned int count_vtbl_hooks, const char *cstrInterface)
+{
 	DWORD* ppvtbl = (DWORD*)*ppvObj;
 	DWORD* pvtbl = (DWORD*) *ppvtbl;
 
 	DWORD flOldProtect, flNewProtect, flDontCare;
 	MEMORY_BASIC_INFORMATION mbi;
 
-	//Get the current protection attributes                            
+	// Get the current protection attributes                            
 	VirtualQuery((void*)pvtbl, &mbi, sizeof(mbi));
 
-	//remove ReadOnly and ExecuteRead attributes, add on ReadWrite flag
+	// remove ReadOnly and ExecuteRead attributes, add on ReadWrite flag
 	flNewProtect = mbi.Protect;
 	flNewProtect &= ~(PAGE_READONLY | PAGE_EXECUTE_READ | PAGE_EXECUTE | PAGE_WRITECOPY);
 	flNewProtect |= (PAGE_READWRITE);
 
-	if(!VirtualProtect((void*)pvtbl, sizeof(PVOID)*count_vtbl_hooks, flNewProtect, &flOldProtect)) {
+	if(!VirtualProtect((void*)pvtbl, sizeof(PVOID)*count_vtbl_hooks, flNewProtect, &flOldProtect))
+	{
 		DWORD dwErr = GetLastError();
 		LPVOID lpMsgBuf;
 		FormatMessage( 
@@ -206,12 +213,15 @@ void HookVTBLCalls(LPVOID *ppvObj, SVTBL_HOOK *vtbl_hooks, const unsigned int co
 		}
 
 
-		//Put the page attributes back the way they were.
+		// Put the page attributes back the way they were.
 		VirtualProtect((void*)pvtbl, sizeof(PVOID)*count_vtbl_hooks, flOldProtect, &flDontCare);
 	}
 }
+////////////////////////////////////////////
 
-void SetD3DRect(D3DRECT &rect, DWORD _x1, DWORD _x2, DWORD _y1, DWORD _y2) {
+
+void SetD3DRect(D3DRECT &rect, DWORD _x1, DWORD _x2, DWORD _y1, DWORD _y2)
+{
 	rect.x1 = rect.lX1 = _x1;
 	rect.x2 = rect.lX2 = _x2;
 	rect.y1 = rect.lY1 = _y1;

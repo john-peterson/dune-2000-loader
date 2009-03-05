@@ -22,11 +22,13 @@ along with Dune 2000 Launcher.  If not, see <http://www.gnu.org/licenses/>.
 #include "DDRAW4_hooks.h"
 #include "ddrawpalette_hooks.h"
 
+
+// Disable a hook by adding this
 //{ NULL, 0, NULL, NULL },	//
 #ifdef _DEBUG
 SVTBL_HOOK ddraw_hooks[] = {
 /*0*/	{ "QueryInterface",			0x00, NULL, (PDWORD)DDRAW_HOOK_QueryInterface },
-/*1*/	{ NULL, 0, NULL, NULL },	//{ "AddRef",					0x04, NULL, (PDWORD)DDRAW_HOOK_AddRef },
+/*1*/	{ NULL, 0, NULL, NULL },	//{ "AddRef",				0x04, NULL, (PDWORD)DDRAW_HOOK_AddRef },
 /*2*/	{ NULL, 0, NULL, NULL },	//{ "Release",				0x08, NULL, (PDWORD)DDRAW_HOOK_Release },
 /*3*/	{ NULL, 0, NULL, NULL },	//{ "Compact",				0x0C, NULL, (PDWORD)DDRAW_HOOK_Compact },
 /*4*/	{ "CreateClipper",			0x10, NULL, (PDWORD)DDRAW_HOOK_CreateClipper },
@@ -79,6 +81,7 @@ SVTBL_HOOK ddraw_hooks[] = {
 const unsigned int count_ddraw_hooks = 23;
 bool ishooked_ddraw_hooks = false;
 
+
 HRESULT __stdcall DDRAW_HOOK_QueryInterface(LPVOID *ppvOut, REFIID riid, LPVOID FAR *ppvObj)
 {
 	const unsigned int hpos = 0;
@@ -88,13 +91,16 @@ HRESULT __stdcall DDRAW_HOOK_QueryInterface(LPVOID *ppvOut, REFIID riid, LPVOID 
 	LogDXError(ret);
 
 	Log("IDirectDraw::%s(%#010lx, { %#010lx, %#06x, %#06x, { %#04x, %#04x, %#04x, %#04x, %#04x, %#04x, %#04x, %#04x } }, %#010lx)\n", ddraw_hooks[hpos].name, ppvOut, riid.Data1, riid.Data2, riid.Data3, riid.Data4[0], riid.Data4[1], riid.Data4[2], riid.Data4[3], riid.Data4[4], riid.Data4[5], riid.Data4[6], riid.Data4[7], ppvObj);
-	if(ret == S_OK && riid == IID_IDirectDraw4 && ishooked_ddraw4_hooks == false) {
+	// 
+	if(ret == S_OK && riid == IID_IDirectDraw4 && ishooked_ddraw4_hooks == false)
+	{
 		HookVTBLCalls(ppvObj, ddraw4_hooks, count_ddraw4_hooks, "IDirectDraw4");
 		ishooked_ddraw4_hooks = true;
 	}
 
 	return ret;
 }
+
 
 ULONG __stdcall DDRAW_HOOK_AddRef(LPVOID *ppvOut)
 {
@@ -173,7 +179,8 @@ HRESULT __stdcall DDRAW_HOOK_CreateSurface(LPVOID *ppvOut, LPDDSURFACEDESC lpDDS
 	return ret;
 }
 
-HRESULT __stdcall DDRAW_HOOK_DuplicateSurface(LPVOID *ppvOut, LPDIRECTDRAWSURFACE lpDDSurface, LPDIRECTDRAWSURFACE FAR *lplpDupDDSurface) {
+HRESULT __stdcall DDRAW_HOOK_DuplicateSurface(LPVOID *ppvOut, LPDIRECTDRAWSURFACE lpDDSurface, LPDIRECTDRAWSURFACE FAR *lplpDupDDSurface)
+{
 	const unsigned int hpos = 7;
 
 	DDRAW_DuplicateSurface_Type ofn = (DDRAW_DuplicateSurface_Type)ddraw_hooks[hpos].oldFunc;
@@ -185,7 +192,8 @@ HRESULT __stdcall DDRAW_HOOK_DuplicateSurface(LPVOID *ppvOut, LPDIRECTDRAWSURFAC
 	return ret;
 }
 
-HRESULT __stdcall DDRAW_HOOK_EnumDisplayModes(LPVOID *ppvOut, DWORD dwFlags, LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID lpContext, LPDDENUMMODESCALLBACK lpEnumModesCallback) {
+HRESULT __stdcall DDRAW_HOOK_EnumDisplayModes(LPVOID *ppvOut, DWORD dwFlags, LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID lpContext, LPDDENUMMODESCALLBACK lpEnumModesCallback)
+{
 	const unsigned int hpos = 8;
 
 	DDRAW_EnumDisplayModes_Type ofn = (DDRAW_EnumDisplayModes_Type)ddraw_hooks[hpos].oldFunc;
@@ -197,7 +205,8 @@ HRESULT __stdcall DDRAW_HOOK_EnumDisplayModes(LPVOID *ppvOut, DWORD dwFlags, LPD
 	return ret;
 }
 
-HRESULT __stdcall DDRAW_HOOK_EnumSurfaces(LPVOID *ppvOut, DWORD dwFlags, LPDDSURFACEDESC lpDDSD, LPVOID lpContext, LPDDENUMSURFACESCALLBACK lpEnumSurfacesCallback) {
+HRESULT __stdcall DDRAW_HOOK_EnumSurfaces(LPVOID *ppvOut, DWORD dwFlags, LPDDSURFACEDESC lpDDSD, LPVOID lpContext, LPDDENUMSURFACESCALLBACK lpEnumSurfacesCallback)
+{
 	const unsigned int hpos = 9;
 
 	DDRAW_EnumSurfaces_Type ofn = (DDRAW_EnumSurfaces_Type)ddraw_hooks[hpos].oldFunc;
@@ -209,7 +218,8 @@ HRESULT __stdcall DDRAW_HOOK_EnumSurfaces(LPVOID *ppvOut, DWORD dwFlags, LPDDSUR
 	return ret;
 }
 
-HRESULT __stdcall DDRAW_HOOK_FlipToGDISurface(LPVOID *ppvOut) {
+HRESULT __stdcall DDRAW_HOOK_FlipToGDISurface(LPVOID *ppvOut)
+{
 	const unsigned int hpos = 10;
 
 	DDRAW_FlipToGDISurface_Type ofn = (DDRAW_FlipToGDISurface_Type)ddraw_hooks[hpos].oldFunc;

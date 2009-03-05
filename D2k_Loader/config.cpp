@@ -22,7 +22,8 @@ along with Dune 2000 Launcher.  If not, see <http://www.gnu.org/licenses/>.
 
 FF8Config g_config;
 
-FF8Config_DispMode displaymode_options[] = {
+FF8Config_DispMode displaymode_options[] =
+{
 	{ _T("640x480 (16-bpp FS 4:3) [Original Resolution]"), 640, 480, 16 },
 	{ _T("800x600 (16-bpp FS 4:3)"), 800, 600, 16 },
 	{ _T("1024x768 (16-bpp FS 4:3)"), 1024, 768, 16 },
@@ -47,13 +48,15 @@ FF8Config_DispMode displaymode_options[] = {
 };
 UINT displaymode_options_count = sizeof(displaymode_options)/sizeof(displaymode_options[0]);
 
-FF8Config_FSAA fsaa_options[] = {
+FF8Config_FSAA fsaa_options[] =
+{
 	{ _T("Use global setting"), 0},
 	{ _T("4x FSAA"), 4},
 };
 UINT fsaa_options_count = sizeof(fsaa_options)/sizeof(fsaa_options[0]);
 
-int LoadConfig(FF8Config &cfg) {
+int LoadConfig(FF8Config &cfg)
+{
 	_TCHAR buffer[200];
 	tifstream ifs;
 	ifs.open(FF8_CONFIG_FILE);
@@ -70,7 +73,8 @@ int LoadConfig(FF8Config &cfg) {
 				at++;
 			}
 
-			if(val != NULL) {
+			if(val != NULL)
+			{
 				//Displaymode
 				if(_tcscmp(_T("displaymode"), buffer) == 0) {
 					cfg.displaymode = parseInt(val);

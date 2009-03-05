@@ -18,14 +18,16 @@ You should have received a copy of the GNU General Public License
 along with Dune 2000 Launcher.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #include "ddrawsurface4_hooks.h"
 #include "d3dtexture2_hooks.h"
 
+// Disable a hook by adding this
 //{ NULL, 0, NULL, NULL },	//
 #ifdef _DEBUG
 SVTBL_HOOK ddrawsurface4_hooks[] = {
 /*0*/	{ "QueryInterface",			0x00, NULL, (PDWORD)DDRAWSURFACE4_HOOK_QueryInterface },
-/*1*/	{ NULL, 0, NULL, NULL },	//{ "AddRef",					0x04, NULL, (PDWORD)DDRAWSURFACE4_HOOK_AddRef },
+/*1*/	{ NULL, 0, NULL, NULL },	//{ "AddRef",				0x04, NULL, (PDWORD)DDRAWSURFACE4_HOOK_AddRef },
 /*2*/	{ NULL, 0, NULL, NULL },	//{ "Release",				0x08, NULL, (PDWORD)DDRAWSURFACE4_HOOK_Release },
 /*3*/	{ "AddAttachedSurface",		0x0C, NULL, (PDWORD)DDRAWSURFACE4_HOOK_AddAttachedSurface },
 /*4*/	{ "AddOverlayDirtyRect",	0x10, NULL, (PDWORD)DDRAWSURFACE4_HOOK_AddOverlayDirtyRect },
@@ -122,7 +124,8 @@ SVTBL_HOOK ddrawsurface4_hooks[] = {
 const unsigned int count_ddrawsurface4_hooks = 45;
 bool ishooked_ddrawsurface4_hooks = false;
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_QueryInterface(LPVOID *ppvOut, REFIID riid, LPVOID FAR *ppvObj) {
+HRESULT __stdcall DDRAWSURFACE4_HOOK_QueryInterface(LPVOID *ppvOut, REFIID riid, LPVOID FAR *ppvObj)
+{
 	const unsigned int hpos = 0;
 
 	DDRAWSURFACE4_QueryInterface_Type ofn = (DDRAWSURFACE4_QueryInterface_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -130,19 +133,22 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_QueryInterface(LPVOID *ppvOut, REFIID riid,
 	LogDXError(ret);
 
 	Log("IDirectDrawSurface4::%s(%#010lx, { %#010lx, %#06x, %#06x, { %#04x, %#04x, %#04x, %#04x, %#04x, %#04x, %#04x, %#04x } }, %#010lx *[%#010lx])\n", ddrawsurface4_hooks[hpos].name, ppvOut, riid.Data1, riid.Data2, riid.Data3, riid.Data4[0], riid.Data4[1], riid.Data4[2], riid.Data4[3], riid.Data4[4], riid.Data4[5], riid.Data4[6], riid.Data4[7], ppvObj, *ppvObj);
-	if(ret == S_OK && riid == IID_IDirect3DTexture2 && ishooked_d3dtexture2_hooks == false) {
+	if(ret == S_OK && riid == IID_IDirect3DTexture2 && ishooked_d3dtexture2_hooks == false)
+	{
 		HookVTBLCalls((LPVOID *)ppvObj, d3dtexture2_hooks, count_d3dtexture2_hooks, "IDirect3DTexture2");
 		ishooked_d3dtexture2_hooks = true;
 	}
-	if(ret == S_OK && riid == IID_IDirect3DTexture2) {
+	if(ret == S_OK && riid == IID_IDirect3DTexture2)
+	{
 		textures[*ppvObj] = ppvOut;
-		Log("textures[%#010lx] = %#010lx;\n", (DWORD)*ppvObj, (DWORD)ppvOut);
+		Log("Textures[%#010lx] = %#010lx;\n", (DWORD)*ppvObj, (DWORD)ppvOut);
 	}
 
 	return ret;
 }
 
-ULONG __stdcall DDRAWSURFACE4_HOOK_AddRef(LPVOID *ppvOut) {
+ULONG __stdcall DDRAWSURFACE4_HOOK_AddRef(LPVOID *ppvOut)
+{
 	const unsigned int hpos = 1;
 
 	DDRAWSURFACE4_AddRef_Type ofn = (DDRAWSURFACE4_AddRef_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -153,7 +159,8 @@ ULONG __stdcall DDRAWSURFACE4_HOOK_AddRef(LPVOID *ppvOut) {
 	return ret;
 }
 
-ULONG __stdcall DDRAWSURFACE4_HOOK_Release(LPVOID *ppvOut) {
+ULONG __stdcall DDRAWSURFACE4_HOOK_Release(LPVOID *ppvOut)
+{
 	const unsigned int hpos = 2;
 
 	DDRAWSURFACE4_Release_Type ofn = (DDRAWSURFACE4_Release_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -248,7 +255,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_EnumAttachedSurfaces(LPVOID *ppvOut, LPVOID
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_EnumOverlayZOrders(LPVOID *ppvOut, DWORD dwFlags, LPVOID lpContext, LPDDENUMSURFACESCALLBACK2 lpfnCallback) {
+HRESULT __stdcall DDRAWSURFACE4_HOOK_EnumOverlayZOrders(LPVOID *ppvOut, DWORD dwFlags, LPVOID lpContext, LPDDENUMSURFACESCALLBACK2 lpfnCallback)
+{
 	const unsigned int hpos = 10;
 
 	DDRAWSURFACE4_EnumOverlayZOrders_Type ofn = (DDRAWSURFACE4_EnumOverlayZOrders_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -260,12 +268,20 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_EnumOverlayZOrders(LPVOID *ppvOut, DWORD dw
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_Flip(LPVOID *ppvOut, LPDIRECTDRAWSURFACE4 lpDDSurfaceTargetOverride, DWORD dwFlags) {
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+HRESULT __stdcall DDRAWSURFACE4_HOOK_Flip(LPVOID *ppvOut, LPDIRECTDRAWSURFACE4 lpDDSurfaceTargetOverride, DWORD dwFlags)
+{
 	const unsigned int hpos = 11;
 
 #ifdef FF8_WINDOWED
 	HRESULT ret = 0;
-	if(((LPDIRECTDRAWSURFACE4)ppvOut) == g_frontbuffer) {
+	if(((LPDIRECTDRAWSURFACE4)ppvOut) == g_frontbuffer)
+	{
+		// ---------------------------------------------------------
+		// Return window coordinates
+		// --------------------
 		RECT rect;
 		POINT p1, p2;
 		GetClientRect(g_hwnd, &rect);
@@ -283,7 +299,9 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_Flip(LPVOID *ppvOut, LPDIRECTDRAWSURFACE4 l
 		rect.right = p2.x;
 		rect.bottom = p2.y;
 
+
 		ret = ((LPDIRECTDRAWSURFACE4)ppvOut)->Blt(&rect, g_backbuffer, NULL, DDBLT_WAIT, NULL);
+		// -----------------------------
 
 		Log("BLIT FLIP\n");
 	} else {
@@ -333,12 +351,16 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_Flip(LPVOID *ppvOut, LPDIRECTDRAWSURFACE4 l
 
 	return ret;
 }
+////////////////////////////////////////
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_GetAttachedSurface(LPVOID *ppvOut, LPDDSCAPS2 lpDDSCaps, LPDIRECTDRAWSURFACE4 FAR *lplpDDAttachedSurface) {
+
+HRESULT __stdcall DDRAWSURFACE4_HOOK_GetAttachedSurface(LPVOID *ppvOut, LPDDSCAPS2 lpDDSCaps, LPDIRECTDRAWSURFACE4 FAR *lplpDDAttachedSurface)
+{
 	const unsigned int hpos = 12;
 
 #ifdef FF8_WINDOWED
-	if(((LPDIRECTDRAWSURFACE4)ppvOut) == g_frontbuffer && (lpDDSCaps->dwCaps & DDSCAPS_BACKBUFFER) == DDSCAPS_BACKBUFFER) {
+	if(((LPDIRECTDRAWSURFACE4)ppvOut) == g_frontbuffer && (lpDDSCaps->dwCaps & DDSCAPS_BACKBUFFER) == DDSCAPS_BACKBUFFER)
+	{
 		*lplpDDAttachedSurface = g_backbuffer;
 		return S_OK;
 	}
@@ -353,7 +375,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_GetAttachedSurface(LPVOID *ppvOut, LPDDSCAP
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_GetBltStatus(LPVOID *ppvOut, DWORD dwFlags) {
+HRESULT __stdcall DDRAWSURFACE4_HOOK_GetBltStatus(LPVOID *ppvOut, DWORD dwFlags)
+{
 	const unsigned int hpos = 13;
 
 	DDRAWSURFACE4_GetBltStatus_Type ofn = (DDRAWSURFACE4_GetBltStatus_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -365,7 +388,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_GetBltStatus(LPVOID *ppvOut, DWORD dwFlags)
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_GetCaps(LPVOID *ppvOut, LPDDSCAPS2 lpDDSCaps) {
+HRESULT __stdcall DDRAWSURFACE4_HOOK_GetCaps(LPVOID *ppvOut, LPDDSCAPS2 lpDDSCaps)
+{
 	const unsigned int hpos = 14;
 
 	DDRAWSURFACE4_GetCaps_Type ofn = (DDRAWSURFACE4_GetCaps_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -377,7 +401,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_GetCaps(LPVOID *ppvOut, LPDDSCAPS2 lpDDSCap
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_GetClipper(LPVOID *ppvOut, LPDIRECTDRAWCLIPPER FAR *lplpDDClipper) {
+HRESULT __stdcall DDRAWSURFACE4_HOOK_GetClipper(LPVOID *ppvOut, LPDIRECTDRAWCLIPPER FAR *lplpDDClipper)
+{
 	const unsigned int hpos = 15;
 
 	DDRAWSURFACE4_GetClipper_Type ofn = (DDRAWSURFACE4_GetClipper_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -461,7 +486,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_GetPixelFormat(LPVOID *ppvOut, LPDDPIXELFOR
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_GetSurfaceDesc(LPVOID *ppvOut, LPDDSURFACEDESC2 lpDDSurfaceDesc) {
+HRESULT __stdcall DDRAWSURFACE4_HOOK_GetSurfaceDesc(LPVOID *ppvOut, LPDDSURFACEDESC2 lpDDSurfaceDesc)
+{
 	const unsigned int hpos = 22;
 
 	DDRAWSURFACE4_GetSurfaceDesc_Type ofn = (DDRAWSURFACE4_GetSurfaceDesc_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -469,7 +495,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_GetSurfaceDesc(LPVOID *ppvOut, LPDDSURFACED
 	LogDXError(ret);
 
 	Log("IDirectDrawSurface4::%s(this=%#010lx, lpDDSurfaceDesc=%#010lx)\n", ddrawsurface4_hooks[hpos].name, ppvOut, lpDDSurfaceDesc);
-	if(lpDDSurfaceDesc != NULL) {
+	if(lpDDSurfaceDesc != NULL)
+	{
 		char dwFlags_buffer[LOGBUFFER_MAX], ddscaps1_buffer[LOGBUFFER_MAX], ddpf_buffer[LOGBUFFER_MAX];
 		FlagsToString(FLAGS_DDSD, CFLAGS_DDSD, lpDDSurfaceDesc->dwFlags, (char *)&dwFlags_buffer, LOGBUFFER_MAX);
 		FlagsToString(FLAGS_DDSCAPS1, CFLAGS_DDSCAPS1, lpDDSurfaceDesc->ddsCaps.dwCaps, (char *)&ddscaps1_buffer, LOGBUFFER_MAX);
@@ -526,7 +553,12 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_IsLost(LPVOID *ppvOut)
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_Lock(LPVOID *ppvOut, LPRECT lpDestRect, LPDDSURFACEDESC2 lpDDSurfaceDesc, DWORD dwFlags, HANDLE hEvent) {
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+HRESULT __stdcall DDRAWSURFACE4_HOOK_Lock(LPVOID *ppvOut, LPRECT lpDestRect, LPDDSURFACEDESC2 lpDDSurfaceDesc, DWORD dwFlags, HANDLE hEvent)
+{
 	const unsigned int hpos = 25;
 
 	DDRAWSURFACE4_Lock_Type ofn = (DDRAWSURFACE4_Lock_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -565,6 +597,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_Lock(LPVOID *ppvOut, LPRECT lpDestRect, LPD
 
 	return ret;
 }
+/////////////////////////////////////////////////
+
 
 HRESULT __stdcall DDRAWSURFACE4_HOOK_ReleaseDC(LPVOID *ppvOut, HDC hDC) {
 	const unsigned int hpos = 26;
@@ -614,7 +648,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_SetColorKey(LPVOID *ppvOut, DWORD dwFlags, 
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_SetOverlayPosition(LPVOID *ppvOut, LONG lX, LONG lY) {
+HRESULT __stdcall DDRAWSURFACE4_HOOK_SetOverlayPosition(LPVOID *ppvOut, LONG lX, LONG lY)
+{
 	const unsigned int hpos = 30;
 
 	DDRAWSURFACE4_SetOverlayPosition_Type ofn = (DDRAWSURFACE4_SetOverlayPosition_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -638,6 +673,10 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_SetPalette(LPVOID *ppvOut, LPDIRECTDRAWPALE
 	return ret;
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 HRESULT __stdcall DDRAWSURFACE4_HOOK_Unlock(LPVOID *ppvOut, LPRECT lpRect)
 {
 	const unsigned int hpos = 32;
@@ -646,20 +685,23 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_Unlock(LPVOID *ppvOut, LPRECT lpRect)
 	HRESULT ret = ofn(ppvOut, lpRect);
 	LogDXError(ret);
 
-	if(g_binkActive == TRUE && g_config.displaymode != 0) { //&& (LPVOID)ppvOut == (LPVOID)0x002c7c50
+	if(g_binkActive == TRUE && g_config.displaymode != 0) // && (LPVOID)ppvOut == (LPVOID)0x002c7c50
+	{
 		DDSURFACEDESC2 ddsd2;
 		memset(&ddsd2, 0, sizeof(DDSURFACEDESC2));
 		ddsd2.dwSize = sizeof(ddsd2);
 		((IDirectDrawSurface4 *)ppvOut)->GetSurfaceDesc(&ddsd2);
-		if(ddsd2.dwWidth == displaymode_options[g_config.displaymode].resX && ddsd2.dwHeight == displaymode_options[g_config.displaymode].resY && (ddsd2.ddsCaps.dwCaps & DDSCAPS_BACKBUFFER) == DDSCAPS_BACKBUFFER) {
+		if(ddsd2.dwWidth == displaymode_options[g_config.displaymode].resX && ddsd2.dwHeight == displaymode_options[g_config.displaymode].resY && (ddsd2.ddsCaps.dwCaps & DDSCAPS_BACKBUFFER) == DDSCAPS_BACKBUFFER)
+		{
 			Log("Bink Active: Rescaling video surface...\n");
 			RECT rcDest, rcSource;
-			rcSource.top = g_currentviewport.old_y; rcSource.bottom = 480-g_currentviewport.old_y;
-			rcSource.left = g_currentviewport.old_x; rcSource.right = 640-g_currentviewport.old_x;
-			rcDest.top = g_currentviewport.y; rcDest.bottom = displaymode_options[g_config.displaymode].resY-g_currentviewport.y;
-			rcDest.left = g_currentviewport.x; rcDest.right = displaymode_options[g_config.displaymode].resX-g_currentviewport.x;		
+			rcSource.top = g_currentviewport.old_y; rcSource.bottom = 480 - g_currentviewport.old_y;
+			rcSource.left = g_currentviewport.old_x; rcSource.right = 640 - g_currentviewport.old_x;
+			rcDest.top = g_currentviewport.y; rcDest.bottom = displaymode_options[g_config.displaymode].resY - g_currentviewport.y;
+			rcDest.left = g_currentviewport.x; rcDest.right = displaymode_options[g_config.displaymode].resX - g_currentviewport.x;		
 
-			if(g_binkCpySurface == NULL) {
+			if(g_binkCpySurface == NULL)
+			{
 				LPDIRECTDRAW4 lpDD = NULL;
 				//LPDIRECTDRAWSURFACE4 lpDDS = NULL;
 				DDSURFACEDESC2 ddsd;
@@ -728,7 +770,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_Unlock(LPVOID *ppvOut, LPRECT lpRect)
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_UpdateOverlay(LPVOID *ppvOut, LPRECT lpSrcRect, LPDIRECTDRAWSURFACE4 lpDDDestSurface, LPRECT lpDestRect, DWORD dwFlags, LPDDOVERLAYFX lpDDOverlayFx) {
+HRESULT __stdcall DDRAWSURFACE4_HOOK_UpdateOverlay(LPVOID *ppvOut, LPRECT lpSrcRect, LPDIRECTDRAWSURFACE4 lpDDDestSurface, LPRECT lpDestRect, DWORD dwFlags, LPDDOVERLAYFX lpDDOverlayFx)
+{
 	const unsigned int hpos = 33;
 
 	DDRAWSURFACE4_UpdateOverlay_Type ofn = (DDRAWSURFACE4_UpdateOverlay_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -848,7 +891,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_FreePrivateData(LPVOID *ppvOut, REFGUID gui
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_GetUniquenessValue(LPVOID *ppvOut, LPDWORD lpValue) {
+HRESULT __stdcall DDRAWSURFACE4_HOOK_GetUniquenessValue(LPVOID *ppvOut, LPDWORD lpValue)
+{
 	const unsigned int hpos = 43;
 
 	DDRAWSURFACE4_GetUniquenessValue_Type ofn = (DDRAWSURFACE4_GetUniquenessValue_Type)ddrawsurface4_hooks[hpos].oldFunc;
@@ -860,7 +904,8 @@ HRESULT __stdcall DDRAWSURFACE4_HOOK_GetUniquenessValue(LPVOID *ppvOut, LPDWORD 
 	return ret;
 }
 
-HRESULT __stdcall DDRAWSURFACE4_HOOK_ChangeUniquenessValue(LPVOID *ppvOut) {
+HRESULT __stdcall DDRAWSURFACE4_HOOK_ChangeUniquenessValue(LPVOID *ppvOut)
+{
 	const unsigned int hpos = 44;
 
 	DDRAWSURFACE4_ChangeUniquenessValue_Type ofn = (DDRAWSURFACE4_ChangeUniquenessValue_Type)ddrawsurface4_hooks[hpos].oldFunc;

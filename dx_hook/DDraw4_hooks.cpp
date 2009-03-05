@@ -97,7 +97,9 @@ SVTBL_HOOK ddraw4_hooks[] = {
 const unsigned int count_ddraw4_hooks = 28;
 bool ishooked_ddraw4_hooks = false;
 
-HRESULT __stdcall DDRAW4_HOOK_QueryInterface(LPVOID *ppvOut, REFIID riid, LPVOID FAR *ppvObj) {
+
+HRESULT __stdcall DDRAW4_HOOK_QueryInterface(LPVOID *ppvOut, REFIID riid, LPVOID FAR *ppvObj)
+{
 	const unsigned int hpos = 0;
 
 	DDRAW4_QueryInterface_Type ofn = (DDRAW4_QueryInterface_Type)ddraw4_hooks[hpos].oldFunc;
@@ -105,11 +107,15 @@ HRESULT __stdcall DDRAW4_HOOK_QueryInterface(LPVOID *ppvOut, REFIID riid, LPVOID
 	LogDXError(ret);
 
 	Log("IDirectDraw4::%s(%#010lx, { %#010lx, %#06x, %#06x, { %#04x, %#04x, %#04x, %#04x, %#04x, %#04x, %#04x, %#04x } }, %#010lx)\n", ddraw4_hooks[hpos].name, ppvOut, riid.Data1, riid.Data2, riid.Data3, riid.Data4[0], riid.Data4[1], riid.Data4[2], riid.Data4[3], riid.Data4[4], riid.Data4[5], riid.Data4[6], riid.Data4[7], ppvObj);
-	if(ret == S_OK) {
-		if(riid == IID_IDirect3D && ishooked_d3d_hooks == false) {
+	if(ret == S_OK)
+	{
+		if(riid == IID_IDirect3D && ishooked_d3d_hooks == false)
+		{
 			HookVTBLCalls(ppvObj, d3d_hooks, count_d3d_hooks, "IDirect3D");
 			ishooked_d3d_hooks = true;
-		} else if(riid == IID_IDirect3D3 && ishooked_d3d3_hooks == false) {
+		}
+		else if(riid == IID_IDirect3D3 && ishooked_d3d3_hooks == false)
+		{
 			HookVTBLCalls(ppvObj, d3d3_hooks, count_d3d3_hooks, "IDirect3D3");
 			ishooked_d3d3_hooks = true;
 		}
@@ -118,7 +124,9 @@ HRESULT __stdcall DDRAW4_HOOK_QueryInterface(LPVOID *ppvOut, REFIID riid, LPVOID
 	return ret;
 }
 
-ULONG __stdcall DDRAW4_HOOK_AddRef(LPVOID *ppvOut) {
+
+ULONG __stdcall DDRAW4_HOOK_AddRef(LPVOID *ppvOut)
+{
 	const unsigned int hpos = 1;
 
 	DDRAW4_AddRef_Type ofn = (DDRAW4_AddRef_Type)ddraw4_hooks[hpos].oldFunc;
@@ -129,7 +137,8 @@ ULONG __stdcall DDRAW4_HOOK_AddRef(LPVOID *ppvOut) {
 	return ret;
 }
 
-ULONG __stdcall DDRAW4_HOOK_Release(LPVOID *ppvOut) {
+ULONG __stdcall DDRAW4_HOOK_Release(LPVOID *ppvOut)
+{
 	const unsigned int hpos = 2;
 
 	DDRAW4_Release_Type ofn = (DDRAW4_Release_Type)ddraw4_hooks[hpos].oldFunc;
@@ -140,14 +149,16 @@ ULONG __stdcall DDRAW4_HOOK_Release(LPVOID *ppvOut) {
 	return ret;
 }
 
-HRESULT __stdcall DDRAW4_HOOK_Compact(LPVOID *ppvOut) {
+HRESULT __stdcall DDRAW4_HOOK_Compact(LPVOID *ppvOut)
+{
 	const unsigned int hpos = 3;
 
 	//not implemented in ddraw4
 	return (HRESULT)0;
 }
 
-HRESULT __stdcall DDRAW4_HOOK_CreateClipper(LPVOID *ppvOut, DWORD dwFlags, LPDIRECTDRAWCLIPPER FAR *lplpDDClipper, IUnknown FAR *pUnkOuter) {
+HRESULT __stdcall DDRAW4_HOOK_CreateClipper(LPVOID *ppvOut, DWORD dwFlags, LPDIRECTDRAWCLIPPER FAR *lplpDDClipper, IUnknown FAR *pUnkOuter)
+{
 	const unsigned int hpos = 4;
 
 	DDRAW4_CreateClipper_Type ofn = (DDRAW4_CreateClipper_Type)ddraw4_hooks[hpos].oldFunc;
@@ -171,10 +182,12 @@ HRESULT __stdcall DDRAW4_HOOK_CreatePalette(LPVOID *ppvOut, DWORD dwFlags, LPPAL
 	return ret;
 }
 
-HRESULT __stdcall DDRAW4_HOOK_CreateSurface(LPVOID *ppvOut, LPDDSURFACEDESC2 lpDDSurfaceDesc, LPDIRECTDRAWSURFACE4 FAR *lplpDDSurface4, IUnknown FAR *pUnkOuter) {
+HRESULT __stdcall DDRAW4_HOOK_CreateSurface(LPVOID *ppvOut, LPDDSURFACEDESC2 lpDDSurfaceDesc, LPDIRECTDRAWSURFACE4 FAR *lplpDDSurface4, IUnknown FAR *pUnkOuter)
+{
 	const unsigned int hpos = 6;
 
-	if(g_config.displaymode != 0) {
+	if(g_config.displaymode != 0)
+	{
 		/*if((void *)lpDDSurfaceDesc == (void *)0x00134518) {
 				lpDDSurfaceDesc->dwWidth = displaymode_options[g_config.displaymode].resX;
 				lpDDSurfaceDesc->dwHeight = displaymode_options[g_config.displaymode].resY;
@@ -185,8 +198,9 @@ HRESULT __stdcall DDRAW4_HOOK_CreateSurface(LPVOID *ppvOut, LPDDSURFACEDESC2 lpD
 		}
 	}
 
-	//8-bit Paletted Textures Fix (VISTA Compatible)
-	if(g_config.b8_paletted_textures_fix >= 1) {
+	// 8-bit Paletted Textures Fix (VISTA Compatible)
+	if(g_config.b8_paletted_textures_fix >= 1)
+	{
 		if(lpDDSurfaceDesc != NULL && (lpDDSurfaceDesc->ddsCaps.dwCaps & (DDSCAPS_ALLOCONLOAD | DDSCAPS_TEXTURE)) == (DDSCAPS_ALLOCONLOAD | DDSCAPS_TEXTURE)) {
 			lpDDSurfaceDesc->dwFlags |= DDSD_CKSRCBLT;
 			lpDDSurfaceDesc->ddckCKSrcBlt.dwColorSpaceLowValue = 0x000000;
@@ -195,7 +209,8 @@ HRESULT __stdcall DDRAW4_HOOK_CreateSurface(LPVOID *ppvOut, LPDDSURFACEDESC2 lpD
 	}
 
 #ifdef FF8_WINDOWED
-	if((void *)lpDDSurfaceDesc == (void *)0x00134658) {
+	if((void *)lpDDSurfaceDesc == (void *)0x00134658)
+	{
 		Log("IF[lpDDSurfaceDesc == 0x00134658] THEN\n");
 		lpDDSurfaceDesc->dwFlags &= ~(DDSD_BACKBUFFERCOUNT);
 		//lpDDSurfaceDesc->dwFlags |= (DDSD_WIDTH | DDSD_HEIGHT);
@@ -264,7 +279,8 @@ ddsCaps={ 0x00001800 (DDSCAPS_SYSTEMMEMORY | DDSCAPS_TEXTURE), 0000000000, 00000
 	LogDXError(ret);
 	
 	Log("IDirectDraw4::%s(this=%#010lx, lpDDSurfaceDesc=%#010lx, lplpDDSurface=%#010lx *[%#010lx], pUnkOuter=%#010lx)\n", ddraw4_hooks[hpos].name, ppvOut, lpDDSurfaceDesc, lplpDDSurface4, (lplpDDSurface4 != NULL ? *lplpDDSurface4 : NULL), pUnkOuter);
-	if(lpDDSurfaceDesc != NULL) {
+	if(lpDDSurfaceDesc != NULL)
+	{
 		char dwFlags_buffer[LOGBUFFER_MAX], ddscaps1_buffer[LOGBUFFER_MAX], ddpf_buffer[LOGBUFFER_MAX];
 		FlagsToString(FLAGS_DDSD, CFLAGS_DDSD, lpDDSurfaceDesc->dwFlags, (char *)&dwFlags_buffer, LOGBUFFER_MAX);
 		FlagsToString(FLAGS_DDSCAPS1, CFLAGS_DDSCAPS1, lpDDSurfaceDesc->ddsCaps.dwCaps, (char *)&ddscaps1_buffer, LOGBUFFER_MAX);
@@ -292,18 +308,25 @@ ddsCaps={ 0x00001800 (DDSCAPS_SYSTEMMEMORY | DDSCAPS_TEXTURE), 0000000000, 00000
 			lpDDSurfaceDesc->ddsCaps.dwCaps, ddscaps1_buffer, lpDDSurfaceDesc->ddsCaps.dwCaps2, lpDDSurfaceDesc->ddsCaps.dwCaps3, lpDDSurfaceDesc->ddsCaps.dwCaps4, lpDDSurfaceDesc->dwTextureStage
 		);
 	}
-	if(ishooked_ddrawsurface4_hooks == false) {
+	if(ishooked_ddrawsurface4_hooks == false)
+	{
 		HookVTBLCalls((LPVOID *)lplpDDSurface4, ddrawsurface4_hooks, count_ddrawsurface4_hooks, "IDirectDrawSurface4");
 		ishooked_ddrawsurface4_hooks = true;
 	}
 
+	// ------------------------------------------------------------------
+	// Create a DirectX window
+	// ----------------------------
 #ifdef FF8_WINDOWED
-	if((void *)lpDDSurfaceDesc == (void *)0x00134658) {
+	if((void *)lpDDSurfaceDesc == (void *)0x00134658)
+	{
 		Log("IF[lpDDSurfaceDesc == 0x00134658] THEN\n");
-		if(SUCCEEDED(ret)) {
+		if(SUCCEEDED(ret))
+		{
 
 			LPDIRECTDRAWCLIPPER pcClipper;
-			if(FAILED(((LPDIRECTDRAW4)ppvOut)->CreateClipper(0, &pcClipper, NULL))) {
+			if(FAILED(((LPDIRECTDRAW4)ppvOut)->CreateClipper(0, &pcClipper, NULL)))
+			{
 				Log("ERROR: Couldn't create clipper\n");
 			}
 
@@ -327,7 +350,8 @@ ddsCaps={ 0x00001800 (DDSCAPS_SYSTEMMEMORY | DDSCAPS_TEXTURE), 0000000000, 00000
 			ddsd.dwHeight          = 480;
 			//hRes = lpdd->lpVtbl->CreateSurface(lpdd, &ddsd, &lpddZBuffer,NULL);
 			hr = ((LPDIRECTDRAW4)ppvOut)->CreateSurface(&ddsd, &lpddsB, NULL);
-			if(FAILED(hr)) {
+			if(FAILED(hr))
+			{
 				Log("ERROR: Failed to create WINDOWED backbuffer!");
 			} else {
 				//hr = (*lplpDDSurface4)->AddAttachedSurface(lpddsB);
@@ -352,11 +376,14 @@ ddsCaps={ 0x00001800 (DDSCAPS_SYSTEMMEMORY | DDSCAPS_TEXTURE), 0000000000, 00000
 		}
 	}
 #endif
+	// ----------------------------------
 
 	return ret;
 }
 
-HRESULT __stdcall DDRAW4_HOOK_DuplicateSurface(LPVOID *ppvOut, LPDIRECTDRAWSURFACE4 lpDDSurface4, LPDIRECTDRAWSURFACE4 FAR *lplpDupDDSurface4) {
+
+HRESULT __stdcall DDRAW4_HOOK_DuplicateSurface(LPVOID *ppvOut, LPDIRECTDRAWSURFACE4 lpDDSurface4, LPDIRECTDRAWSURFACE4 FAR *lplpDupDDSurface4)
+{
 	const unsigned int hpos = 7;
 
 	DDRAW4_DuplicateSurface_Type ofn = (DDRAW4_DuplicateSurface_Type)ddraw4_hooks[hpos].oldFunc;
@@ -368,7 +395,9 @@ HRESULT __stdcall DDRAW4_HOOK_DuplicateSurface(LPVOID *ppvOut, LPDIRECTDRAWSURFA
 	return ret;
 }
 
-HRESULT __stdcall DDRAW4_HOOK_EnumDisplayModes(LPVOID *ppvOut, DWORD dwFlags, LPDDSURFACEDESC2 lpDDSurfaceDesc2, LPVOID lpContext, LPDDENUMMODESCALLBACK2 lpEnumModesCallback2) {
+
+HRESULT __stdcall DDRAW4_HOOK_EnumDisplayModes(LPVOID *ppvOut, DWORD dwFlags, LPDDSURFACEDESC2 lpDDSurfaceDesc2, LPVOID lpContext, LPDDENUMMODESCALLBACK2 lpEnumModesCallback2)
+{
 	const unsigned int hpos = 8;
 
 	DDRAW4_EnumDisplayModes_Type ofn = (DDRAW4_EnumDisplayModes_Type)ddraw4_hooks[hpos].oldFunc;
@@ -512,7 +541,12 @@ HRESULT __stdcall DDRAW4_HOOK_RestoreDisplayMode(LPVOID *ppvOut) {
 	return ret;
 }
 
-HRESULT __stdcall DDRAW4_HOOK_SetCooperativeLevel(LPVOID *ppvOut, HWND hWnd, DWORD dwFlags) {
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Save the hWnd for the window it has created.
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+HRESULT __stdcall DDRAW4_HOOK_SetCooperativeLevel(LPVOID *ppvOut, HWND hWnd, DWORD dwFlags)
+{
 	const unsigned int hpos = 20;
 
 #ifdef FF8_WINDOWED
@@ -529,13 +563,13 @@ HRESULT __stdcall DDRAW4_HOOK_SetCooperativeLevel(LPVOID *ppvOut, HWND hWnd, DWO
 	
 	Log("WINDOW STYLE: %s\nWINDOW EX STYLE: %s\n", style_buffer, exstyle_buffer);*/
 
+	// Change the window style from full screen to windowed
 	style &= ~(WS_POPUP);
 	style |= (WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX);
-
 	SetWindowLong(hWnd, GWL_STYLE, style);
 	SetWindowPos(hWnd, HWND_TOP, 100, 100, 0, 0, SWP_NOSIZE);
 
-	hWnd = NULL; //windowed mode
+	hWnd = NULL; // windowed mode
 #endif
 
 	DDRAW4_SetCooperativeLevel_Type ofn = (DDRAW4_SetCooperativeLevel_Type)ddraw4_hooks[hpos].oldFunc;
@@ -546,11 +580,18 @@ HRESULT __stdcall DDRAW4_HOOK_SetCooperativeLevel(LPVOID *ppvOut, HWND hWnd, DWO
 
 	return ret;
 }
+////////////////////////////////////
 
-HRESULT __stdcall DDRAW4_HOOK_SetDisplayMode(LPVOID *ppvOut, DWORD dwWidth, DWORD dwHeight, DWORD dwBPP, DWORD dwRefreshRate, DWORD dwFlags) {
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Set display mode
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+HRESULT __stdcall DDRAW4_HOOK_SetDisplayMode(LPVOID *ppvOut, DWORD dwWidth, DWORD dwHeight, DWORD dwBPP, DWORD dwRefreshRate, DWORD dwFlags)
+{
 	const unsigned int hpos = 21;
 
-	if(g_config.displaymode != 0) {
+	if(g_config.displaymode != 0)
+	{
 		dwWidth = displaymode_options[g_config.displaymode].resX;
 		dwHeight = displaymode_options[g_config.displaymode].resY;
 		dwBPP = displaymode_options[g_config.displaymode].bpp;
@@ -568,8 +609,11 @@ HRESULT __stdcall DDRAW4_HOOK_SetDisplayMode(LPVOID *ppvOut, DWORD dwWidth, DWOR
 
 	return ret;
 }
+////////////////////////////////////
 
-HRESULT __stdcall DDRAW4_HOOK_WaitForVerticalBlank(LPVOID *ppvOut, DWORD dwFlags, HANDLE hEvent) {
+
+HRESULT __stdcall DDRAW4_HOOK_WaitForVerticalBlank(LPVOID *ppvOut, DWORD dwFlags, HANDLE hEvent)
+{
 	const unsigned int hpos = 22;
 
 	DDRAW4_WaitForVerticalBlank_Type ofn = (DDRAW4_WaitForVerticalBlank_Type)ddraw4_hooks[hpos].oldFunc;
@@ -581,7 +625,9 @@ HRESULT __stdcall DDRAW4_HOOK_WaitForVerticalBlank(LPVOID *ppvOut, DWORD dwFlags
 	return ret;
 }
 
-HRESULT __stdcall DDRAW4_HOOK_GetAvailableVidMem(LPVOID *ppvOut, LPDDSCAPS2 lpDDSCaps2, LPDWORD lpdwTotal, LPDWORD lpdwFree) {
+
+HRESULT __stdcall DDRAW4_HOOK_GetAvailableVidMem(LPVOID *ppvOut, LPDDSCAPS2 lpDDSCaps2, LPDWORD lpdwTotal, LPDWORD lpdwFree)
+{
 	const unsigned int hpos = 23;
 
 	DDRAW4_GetAvailableVidMem_Type ofn = (DDRAW4_GetAvailableVidMem_Type)ddraw4_hooks[hpos].oldFunc;

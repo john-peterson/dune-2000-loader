@@ -123,7 +123,7 @@ BOOL APIENTRY DllMain(HINSTANCE hModule,  DWORD  ul_reason_for_call, LPVOID lpRe
 	return TRUE;
 }
 
-
+//
 HRESULT __stdcall MyDirectDrawCreate(GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter )
 {
 	DirectDrawCreate_Type OldFn = (DirectDrawCreate_Type)DLLHooks[0]->Functions[0].OrigFn;
@@ -139,6 +139,7 @@ HRESULT __stdcall MyDirectDrawCreate(GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD,
 	return ret;
 }
 
+//
 HRESULT __stdcall MyDirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPDIRECTINPUT *lplpDirectInput, LPUNKNOWN pUnkOuter)
 {
 	DirectInputCreateA_Type OldFn = (DirectInputCreateA_Type)DLLHooks[1]->Functions[0].OrigFn;

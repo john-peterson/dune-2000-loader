@@ -33,11 +33,13 @@ along with Dune 2000 Launcher.  If not, see <http://www.gnu.org/licenses/>.
 #include "flags.h"
 #include "../D2k_Loader/config.h"
 
-//#define FF8_WINDOWED //Old, before resolutions, does not work/for reference.
+// Old, before resolutions, does not work/for reference.
+#define FF8_WINDOWED
 
 #define SAFE_RELEASE(p) { if (p) { (p)->Release(); (p)=NULL; } }
 
-struct SVTBL_HOOK {
+struct SVTBL_HOOK
+{
 	char *name;
 	DWORD offset;
 	DWORD *oldFunc;

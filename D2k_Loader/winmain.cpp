@@ -106,7 +106,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	#ifdef SETUP_DEBUGGING
 	// -------------
 	// Load the game directly
-	LaunchGame(g_lpCmdLine);
+	//LaunchGame(g_lpCmdLine);
 	#endif
 	// ----------------------
 

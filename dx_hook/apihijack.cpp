@@ -26,7 +26,7 @@ along with Dune 2000 Launcher.  If not, see <http://www.gnu.org/licenses/>.
 #include "apihijack.h"
 
 /*
-//SAVE/RESTORE REGISTERS
+// SAVE/RESTORE REGISTERS
 
 __asm   pushad  // Save all general purpose registers
 PDWORD pRetAddr = (PDWORD)(&this - 1);
@@ -35,7 +35,7 @@ DLPD_IAT_STUB * pDLPDStub = (DLPD_IAT_STUB *)(*pRetAddr - 5);
 __asm   popad   // Restore all general purpose registers
 */
 
-//Given an HMODULE, returns a pointer to the PE header
+// Given an HMODULE, returns a pointer to the PE header
 PIMAGE_NT_HEADERS PEHeaderFromHModule(HMODULE hModule) {
 	PIMAGE_NT_HEADERS pNTHeader = 0;
 
@@ -51,24 +51,24 @@ PIMAGE_NT_HEADERS PEHeaderFromHModule(HMODULE hModule) {
 	return pNTHeader;
 }
 
-//Redirect IAT for one DLL
+// Redirect IAT for one DLL
 bool RedirectIAT(SDLLHook *DLLHook, PIMAGE_IMPORT_DESCRIPTOR pImportDesc, PVOID pBaseLoadAddr) {
 	PIMAGE_THUNK_DATA pIAT; //Ptr to import address table
 	PIMAGE_THUNK_DATA pINT; //Ptr to import names table
 	PIMAGE_THUNK_DATA pIteratingIAT;
 
-	//Figure out which OS platform we're on
+	// Figure out which OS platform we're on
 	OSVERSIONINFO osvi; 
 	osvi.dwOSVersionInfoSize = sizeof(osvi);
 	GetVersionEx(&osvi);
 
-	//If no import names table, we can't redirect this, so bail
+	// If no import names table, we can't redirect this, so bail
 	if(pImportDesc->OriginalFirstThunk == 0) return false;
 
 	pIAT = MakePtr(PIMAGE_THUNK_DATA, pBaseLoadAddr, pImportDesc->FirstThunk);
 	pINT = MakePtr(PIMAGE_THUNK_DATA, pBaseLoadAddr, pImportDesc->OriginalFirstThunk);
 
-	//Count how many entries there are in this IAT.  Array is 0 terminated
+	// Count how many entries there are in this IAT.  Array is 0 terminated
 	pIteratingIAT = pIAT;
 	unsigned cFuncs = 0;
 	while(pIteratingIAT->u1.Function) {
@@ -93,7 +93,7 @@ bool RedirectIAT(SDLLHook *DLLHook, PIMAGE_IMPORT_DESCRIPTOR pImportDesc, PVOID 
 	while(pIteratingIAT->u1.Function) {
 		void *HookFn = NULL;
 
-		//We're only interested in imports by name not ordinal
+		// We're only interested in imports by name not ordinal
 		if(!IMAGE_SNAP_BY_ORDINAL(pINT->u1.Ordinal)) {
 			PIMAGE_IMPORT_BY_NAME pImportName = MakePtr(PIMAGE_IMPORT_BY_NAME, pBaseLoadAddr, pINT->u1.AddressOfData);
 
@@ -113,10 +113,10 @@ bool RedirectIAT(SDLLHook *DLLHook, PIMAGE_IMPORT_DESCRIPTOR pImportDesc, PVOID 
 
 		}
 
-		//Replace the IAT function pointer if we have a hook
+		// Replace the IAT function pointer if we have a hook
 		if(HookFn) {
-			//Cheez-o hack to see if what we're importing is code or data.
-			//If it's code, we shouldn't be able to write to it
+			// Cheez-o hack to see if what we're importing is code or data.
+			// If it's code, we shouldn't be able to write to it
 			if(IsBadWritePtr((PVOID)pIteratingIAT->u1.Function, 1)) {
 				pIteratingIAT->u1.Function = (DWORD)HookFn;
 			} else if(osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) {

@@ -230,7 +230,6 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
-				AdditionalManifestFiles="FF8_Launcher.exe.manifest"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
