@@ -12,6 +12,7 @@
 // Declarations and definitions
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 typedef HRESULT (__stdcall *Func_DirectDrawCreate)(GUID FAR *, LPDIRECTDRAW FAR *, IUnknown FAR *);
+LPDIRECTDRAW		lplpDD;		// DirectDraw object
 /////////////////////////////////////////////
 
 
@@ -32,7 +33,8 @@ int main ()
 		// Check if the function existed
 		if(pDirectDrawCreate != NULL)
 		{
-			HRESULT hr = pDirectDrawCreate(NULL, NULL, NULL);
+			HRESULT hr = pDirectDrawCreate(NULL, &lplpDD, NULL);
+			//HRESULT ddrval = lplpDD->SetCooperativeLevel( hwnd, DDSCL_NORMAL );
 			printf("DirectDrawCreate was called");
 		}
 		else
