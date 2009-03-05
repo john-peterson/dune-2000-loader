@@ -24,7 +24,7 @@ int main ()
 	//MoveWindow(Console::GetHwnd(), 200,0, 200*8,50*14, true);
 
 	// Load DLL
-	HMODULE hModule = LoadLibrary("DDraw_Wrapper.dll");
+	HMODULE hModule = LoadLibrary("ddraw.dll");
 	// Check if LoadLibrary() succeeded
 	if(hModule != NULL)
 	{
@@ -44,7 +44,7 @@ int main ()
 	}
 	else
 	{
-		printf("Could not load DDraw_Wrapper.dll");
+		printf("Could not load ddraw.dll");
 	}
 
 	// Wait for input before terminating
