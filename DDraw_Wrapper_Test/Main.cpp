@@ -12,7 +12,7 @@
 // Declarations and definitions
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 typedef HRESULT (__stdcall *Func_DirectDrawCreate)(GUID FAR *, LPDIRECTDRAW FAR *, IUnknown FAR *);
-LPDIRECTDRAW		lplpDD;		// DirectDraw object
+LPDIRECTDRAW		g_lplpDD;		// DirectDraw object
 /////////////////////////////////////////////
 
 
@@ -33,9 +33,19 @@ int main ()
 		// Check if the function existed
 		if(pDirectDrawCreate != NULL)
 		{
-			HRESULT hr = pDirectDrawCreate(NULL, &lplpDD, NULL);
-			//HRESULT ddrval = lplpDD->SetCooperativeLevel( hwnd, DDSCL_NORMAL );
-			printf("DirectDrawCreate was called");
+			HRESULT hr = pDirectDrawCreate(NULL, &g_lplpDD, NULL);			
+			printf("DirectDrawCreate was called: 0x%08x\n", (int)g_lplpDD);
+
+			// -----------------------------------------------
+			// Test if the pointer works
+			// --------------------
+			//HRESULT ddrval = lplpDD->SetCooperativeLevel( NULL, DDSCL_NORMAL );
+			DDSURFACEDESC ddsd;
+			ZeroMemory( &ddsd, sizeof(DDSURFACEDESC) );
+			ddsd.dwSize = sizeof(DDSURFACEDESC);
+			HRESULT ddrval = g_lplpDD->GetDisplayMode( &ddsd );
+			printf("GetDisplayMode: %ix%ix%i\n", ddsd.dwWidth, ddsd.dwHeight, ddsd.ddpfPixelFormat.dwRGBBitCount);
+			// --------------------------------
 		}
 		else
 		{

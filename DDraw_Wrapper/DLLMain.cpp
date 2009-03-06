@@ -4,7 +4,6 @@
 #include <iostream>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#define DDRAW_HOOK
 #include <ddraw.h>
 ///////////////////////////////////////
 
@@ -41,7 +40,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 extern "C"
 {
-	HRESULT __declspec(dllexport) DirectDrawCreate(GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter )
+	HRESULT __stdcall DirectDrawCreate(GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter )
 	{
 		// Load the real ddraw.dll
 		HMODULE hModule = LoadLibrary("D:\\Windows\\System32\\ddraw.dll");
@@ -51,7 +50,7 @@ extern "C"
 			Func_DirectDrawCreate pDirectDrawCreate = (Func_DirectDrawCreate)GetProcAddress(hModule, "DirectDrawCreate");
 			if(pDirectDrawCreate != NULL)
 			{
-				hr = pDirectDrawCreate(lpGUID, lplpDD, pUnkOuter);
+				hr = pDirectDrawCreate(lpGUID, *&lplpDD, pUnkOuter);
 				printf("DirectDrawCreate succeeded\n");
 			}
 			else

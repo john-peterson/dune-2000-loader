@@ -57,6 +57,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\ddraw.dll"
+				ModuleDefinitionFile="DLLMain.def"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -126,6 +128,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\ddraw.dll"
+				ModuleDefinitionFile="DLLMain.def"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
