@@ -160,14 +160,66 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath=".\DLLMain.cpp"
+		<Filter
+			Name="Hooks"
 			>
-		</File>
-		<File
-			RelativePath=".\DLLMain.def"
+			<File
+				RelativePath=".\IDirectDraw.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IDirectDraw.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IDirectDraw7.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IDirectDrawPalette.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IDirectDrawSurface.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IDirectDrawSurface7.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IDirectDrawSurface7.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Main"
 			>
-		</File>
+			<File
+				RelativePath=".\AddLog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Common.h"
+				>
+			</File>
+			<File
+				RelativePath=".\detours.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DirectDrawMain.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DLLMain.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DLLMain.def"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
