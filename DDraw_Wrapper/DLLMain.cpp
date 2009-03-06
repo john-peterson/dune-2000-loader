@@ -128,6 +128,7 @@ bool WINAPI DllMain( HANDLE hInstance, DWORD dwReason, LPVOID lpReserved )
 	if( dwReason == DLL_PROCESS_ATTACH )
 	{
 		Console::Open();
+		Console::ClearFile();
 
 		AddLog( "" );
 		AddLog( "----------------------------------------------------------------" );

@@ -162,8 +162,7 @@ void ClearFile()
 {
 	// Clear both files
 	DoClearFile(LOGFILE);
-	DoClearFile("dllhook_log.txt");
-
+	//DoClearFile("dllhook_log.txt");
 }
 // =================================================
 
@@ -239,9 +238,9 @@ int Print(const char *fmt, ...)
 		//LogFile->open(LOGFILE, std::ios::trunc);
 	}
 
-	//*LogFile << s << "\n";
+	*LogFile << s;
 	//*LogFile << GetTimeFormatted() << ": " << s << "\n";
-	*LogFile << GetTimeFormatted() << ": " << s;
+	//*LogFile << GetTimeFormatted() << ": " << s;
 	
 	LogFile->flush();
 	// -----------------------
