@@ -58,7 +58,7 @@ extern "C"
 				printf("DirectDrawCreate failed\n");
 			}
 
-			FreeLibrary(hModule);
+			//FreeLibrary(hModule);
 		}
 		else
 		{
