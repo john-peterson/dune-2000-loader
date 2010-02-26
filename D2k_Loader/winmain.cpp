@@ -361,7 +361,7 @@ void LaunchGame(std::string SCmdLine)
 
 	// Use a custom exe path
 	#ifdef SETUP_DEBUGGING
-	SCmdLine = "J:\\Work\\Personal\\Programming\\C++\\CODE INJECTION\\Target.exe";
+	SCmdLine = "TestTarget.exe";
 	//SCmdLine = "I:\\Games\\Dune 2000 (1998)\\DUNE2000.EXE";
 	//SCmdLine = "C:\\Files\\Games\\Final Fantasy VIII (1998)\\Game\\FF8.exe";
 	//SCmdLine = "C:\\Program Files (XP)\\Microsoft Virtual PC\\Virtual PC.exe";
@@ -449,7 +449,11 @@ void LaunchGame(std::string SCmdLine)
 
 		// Create remote thread
 		Console::Print("CreateRemoteThread\n");
-		hThread = ::CreateRemoteThread(pi.hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "LoadLibraryW"), pLibRemote, 0, NULL);
+		hThread = ::CreateRemoteThread(pi.hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "LoadLibraryA"), pLibRemote, 0, NULL);
+		if (hThread == NULL)
+		{
+			printf("CreateRemoteThread failed: %s\n", ShowError());
+		}
 		
 		// Pause loader		
 		WaitForSingleObject(hThread, INFINITE);
@@ -466,7 +470,7 @@ void LaunchGame(std::string SCmdLine)
 		WaitForSingleObject(pi.hProcess, INFINITE);
 		// Unload DLL
 		Console::Print("Unload DLL\n");
-		hThread = ::CreateRemoteThread(pi.hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "FreeLibraryW"), (LPVOID)hLibModule, 0, NULL);
+		hThread = ::CreateRemoteThread(pi.hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "FreeLibraryA"), (LPVOID)hLibModule, 0, NULL);
 		WaitForSingleObject(hThread, INFINITE);
 		CloseHandle(hThread);
 		// Close FF8.exe
