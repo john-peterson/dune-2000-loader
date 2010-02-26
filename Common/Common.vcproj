@@ -208,6 +208,22 @@
 			RelativePath=".\Common.h"
 			>
 		</File>
+		<File
+			RelativePath=".\FileUtil.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\FileUtil.h"
+			>
+		</File>
+		<File
+			RelativePath=".\StringUtil.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\StringUtil.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

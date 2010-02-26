@@ -46,6 +46,8 @@ DUNE2000.DAT, and that only calls directly from DUNE2000.EXE are picked up?
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 #include "winmain.h"
 #include "../Common/Common.h"
+#include "../Common/StringUtil.h"
+#include "../Common/FileUtil.h"
 /////////////////////////////////////////////
 
 
@@ -65,13 +67,13 @@ LPSTR g_lpCmdLine = NULL;
 /////////////////////////////////////////////
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int iCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR SCmdLine, int iCmdShow)
 {
 	Console::Open(130);
 	Console::ClearFile();
 
 	g_hInst = hInstance;
-	g_lpCmdLine = lpCmdLine;
+	g_lpCmdLine = SCmdLine;
 
 	InitCommonControls();
 
@@ -106,7 +108,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	#ifdef SETUP_DEBUGGING
 	// -------------
 	// Load the game directly
-	//LaunchGame(g_lpCmdLine);
+	LaunchGame(std::string(g_lpCmdLine));
 	#endif
 	// ----------------------
 
@@ -353,77 +355,30 @@ LRESULT CALLBACK AboutProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 }
 
 // Get the FF8.exe path and load the game
-void LaunchGame(LPCSTR lpCmdLine)
+void LaunchGame(std::string SCmdLine)
 {
+	std::string exe_path, dir_path, libPath;
 
-	// ----------------------------------------------------
-	#ifdef SETUP_DEBUGGING
-	// -------------
 	// Use a custom exe path
-	//std::string StrPath = "";
-	std::string StrPath = "C:\\Files\\Games\\Dune 2000 (1998)\\Game\\DUNE2000.EXE";
-	//std::string StrPath = "C:\\Files\\Games\\Final Fantasy VIII (1998)\\Game\\FF8.exe";
-	//std::string StrPath = "C:\\Program Files (XP)\\Microsoft Virtual PC\\Virtual PC.exe";
-	#endif
-	// ----------------------
-
-
-	_TCHAR exe_path[MAX_PATH];
-	memset(&exe_path, 0, sizeof(_TCHAR)*MAX_PATH);
-
-	_TCHAR dir_path[MAX_PATH];
-	DWORD dir_path_size = MAX_PATH*sizeof(_TCHAR);
-	memset(&dir_path, 0, dir_path_size);
-
-	#ifndef SETUP_DEBUGGING
-		int lpCmdLineF_size = (int)strlen(lpCmdLine) + 1;
-	#else
-		int lpCmdLineF_size = (int)(StrPath.length() + 1);
-	#endif
-	_TCHAR *lpCmdLineF = new _TCHAR[lpCmdLineF_size];
-	#ifdef  _UNICODE
-		#ifndef SETUP_DEBUGGING
-			MultiByteToWideChar(CP_UTF8, 0, lpCmdLine, -1, lpCmdLineF, lpCmdLineF_size);
-		#else
-			MultiByteToWideChar(CP_UTF8, 0, StrPath.c_str(), -1, lpCmdLineF, lpCmdLineF_size);
-		#endif
-	#else
-		#ifndef SETUP_DEBUGGING
-			_sntprintf_s(lpCmdLineF, lpCmdLineF_size, lpCmdLineF_size, _T("%s"), lpCmdLine);
-		#else
-			_sntprintf_s(lpCmdLineF, lpCmdLineF_size, lpCmdLineF_size, _T("%s"), StrPath.c_str());
-		#endif
+	#ifdef SETUP_DEBUGGING
+	SCmdLine = "J:\\Work\\Personal\\Programming\\C++\\CODE INJECTION\\Target.exe";
+	//SCmdLine = "I:\\Games\\Dune 2000 (1998)\\DUNE2000.EXE";
+	//SCmdLine = "C:\\Files\\Games\\Final Fantasy VIII (1998)\\Game\\FF8.exe";
+	//SCmdLine = "C:\\Program Files (XP)\\Microsoft Virtual PC\\Virtual PC.exe";
 	#endif
 
-	FILE *fs;
-	#ifdef  _UNICODE
-		if(lpCmdLineF_size > 1 && ((fs = _wfsopen(lpCmdLineF, _T("r"), _SH_DENYNO)) != NULL))
-	#else
-		if(lpCmdLineF_size > 1 && ((fs = _fsopen(lpCmdLineF, _T("r"), _SH_DENYNO)) != NULL))
-	#endif
+	// Get path
+	if(File::Exists(SCmdLine))
 	{
-		// From file
-		fclose(fs);
-
-		_sntprintf_s((_TCHAR *)&dir_path, MAX_PATH, MAX_PATH, _T("%s"), lpCmdLineF);
-		for(int i = MAX_PATH-1; i >= 0; i--)
-		{
-			if(dir_path[i] == _T('\\'))
-			{
-				dir_path[i] = _T('\0');
-				break;
-			}
-		}
-
-		_sntprintf_s((_TCHAR *)&exe_path, MAX_PATH, MAX_PATH, _T("%s"), lpCmdLineF);
+		dir_path = GetPath(SCmdLine);
+		exe_path = SCmdLine;
 	}
 	else
 	{
 		// From registry
-		/* Dune 2000 creates saves the path to the main exe when the game is installed, in [HKEY_LOCAL_MACHINE\
-		   SOFTWARE\Westwood\Dune 2000] \ InstallPath. But it's not needed to run the game (the information in
-		   RESOURCE.CFG is enough) so we can't definately know that we have a registry path.
-		*/
+		// Dune 2000 saves the path to the main exe in [HKEY_LOCAL_MACHINE\SOFTWARE\Westwood\Dune 2000]\InstallPath
+		// when the game is installed. But it's not needed to run the game (the information in
+		// RESOURCE.CFG is enough) so we can't definately know that we have a registry path.
 		/*
 		HKEY hFF8_key = NULL;
 
@@ -437,59 +392,66 @@ void LaunchGame(LPCSTR lpCmdLine)
 		*/
 	}
 
+	// Dll directory
+	libPath = StringFromFormat("%s\\DX_Hook.dll", DoGetCurrentDirectory().c_str());
+		
 	// ---------------------------------------------------------------------------------
 	// Inject our library into the target process
 	// --------------------
-	if(_tcslen((_TCHAR *)&exe_path) <= 0)
+	if (SCmdLine == "")
 	{
-		MessageBox(NULL, _T("DUNE2000.exe path missing from both command line and registry.\n\nCorrect Usage:\nc:\\games\\D2k_loader.exe c:\\games\\DUNE2000.exe"), _T("Dune 2000 Loader"), MB_OK | MB_ICONERROR);
-	} else
+		MessageBox(NULL,
+		_T("DUNE2000.exe path missing from both command line and registry.\n\n")
+		_T("Correct Usage:\nc:\\games\\D2k_loader.exe c:\\games\\DUNE2000.exe"),
+		_T("Dune 2000 Loader"), MB_OK | MB_ICONERROR);
+	}
+	else if (!File::Exists(SCmdLine))
+	{
+		MessageBoxA(NULL, StringFromFormat("Could not find '%s'", SCmdLine.c_str()).c_str(),
+		"Dune 2000 Loader", MB_OK | MB_ICONERROR);	
+	}
+	else if (!File::Exists(libPath))
+	{
+		MessageBoxA(NULL, StringFromFormat("Could not find '%s'", libPath.c_str()).c_str(),
+		"Dune 2000 Loader", MB_OK | MB_ICONERROR);	
+	}
+	else
 	{
 		//installCOMHook();
 
-		_TCHAR currdirPath[MAX_PATH], libPath[MAX_PATH];
-		if(GetCurrentDirectory(MAX_PATH, currdirPath))
-		{
-			//Error
-		}
-		_sntprintf_s(libPath, MAX_PATH, MAX_PATH, _T("%s\\DX_Hook.dll"), currdirPath);
-
 		// Logging
-		//Console::Print("Path:\n   %s\n   %s\n   %s\n   %s\n", lpCmdLine, lpCmdLineF, exe_path, libPath);
+		Console::Print("Path:\n   %s\n   %s\n   %s\n", SCmdLine.c_str(), exe_path.c_str(), libPath.c_str());
 		//return;
 
-		STARTUPINFO si;
+		// Create process ID templates to store the new process ID in
+		STARTUPINFOA si;
 		PROCESS_INFORMATION pi;
 		memset(&si, 0, sizeof(si));
 		memset(&pi, 0, sizeof(pi));
 		si.cb = sizeof(si);
 
 		// Launch exe
-		#ifdef  _UNICODE
-			if(!CreateProcess(NULL, (LPWSTR)&exe_path, NULL, NULL, FALSE, 0, NULL, NULL /*(LPCWSTR)&dir_path*/, &si, &pi))
-		#else
-			if(!CreateProcess(NULL, (LPSTR)&exe_path, NULL, NULL, FALSE, 0, NULL, NULL /*(LPCWSTR)&dir_path*/, &si, &pi))
-		#endif
+		if (!CreateProcessA(NULL, (LPSTR)exe_path.c_str(), NULL, NULL, FALSE, 0, NULL, NULL /*(LPSTR)dir_path.c_str()*/, &si, &pi))
 		{
-			_TCHAR mbuffer[255];
-			_sntprintf_s((_TCHAR *)&mbuffer, 150, 150, _T("CreateProcess(FF8.exe) returned an error...\n\nERROR CODE: %d\n"),  GetLastError());
-			MessageBox(NULL, (_TCHAR *)&mbuffer, _T("Dune 2000 Loader"), MB_OK | MB_ICONERROR);
+			MessageBoxA(NULL,
+			StringFromFormat("CreateProcess returned an error: %s\n", ShowError().c_str()).c_str(),
+			"Dune 2000 Loader", MB_OK | MB_ICONERROR);
 		}
 
-
-		// The thread used for the DUNE2000.exe process
+		// The thread used for the target process
 		HANDLE hThread;
 		void* pLibRemote;
 		DWORD hLibModule;
 		HMODULE hKernel32 = GetModuleHandle(_T("Kernel32"));
 
 		pLibRemote = VirtualAllocEx(pi.hProcess, NULL, sizeof(libPath), MEM_COMMIT, PAGE_READWRITE);
-		WriteProcessMemory(pi.hProcess, pLibRemote, (void*)libPath, sizeof(libPath), NULL );
+		WriteProcessMemory(pi.hProcess, pLibRemote, libPath.c_str(), libPath.length(), NULL );
 
-		// Load thread
-		Console::Print("Load thread\n");
-		hThread = ::CreateRemoteThread(pi.hProcess, NULL, 0, (LPTHREAD_START_ROUTINE) GetProcAddress(hKernel32, "LoadLibraryW"), pLibRemote, 0, NULL);
-		// Wait for ...
+		// Create remote thread
+		Console::Print("CreateRemoteThread\n");
+		hThread = ::CreateRemoteThread(pi.hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "LoadLibraryW"), pLibRemote, 0, NULL);
+		
+		// Pause loader		
 		WaitForSingleObject(hThread, INFINITE);
 		GetExitCodeThread(hThread, &hLibModule);	
 		// Close thread
@@ -498,17 +460,16 @@ void LaunchGame(LPCSTR lpCmdLine)
 		//
 		VirtualFreeEx(pi.hProcess, pLibRemote, sizeof(libPath), MEM_RELEASE);
 
-		// Destroy the application window, but wait for the DUNE2000.exe process to return before terminating the launcher process
+		// Destroy the application window, 
 		DestroyWindow(g_hwndMain);
-		
-		// The game was terminated
+		// Wait for the target process to return before terminating the launcher process
 		WaitForSingleObject(pi.hProcess, INFINITE);
-		Console::Print("Unload DLL\n");
 		// Unload DLL
-		hThread = ::CreateRemoteThread(pi.hProcess, NULL, 0, (LPTHREAD_START_ROUTINE) GetProcAddress(hKernel32, "FreeLibraryW"), (LPVOID)hLibModule, 0, NULL);
+		Console::Print("Unload DLL\n");
+		hThread = ::CreateRemoteThread(pi.hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "FreeLibraryW"), (LPVOID)hLibModule, 0, NULL);
 		WaitForSingleObject(hThread, INFINITE);
 		CloseHandle(hThread);
-
+		// Close FF8.exe
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 
@@ -516,7 +477,8 @@ void LaunchGame(LPCSTR lpCmdLine)
 		//removeCOMHook();
 	}
 	// ---------------------------------------
-
-	delete lpCmdLineF;
-	lpCmdLineF = NULL;
+	
+	#ifdef SETUP_DEBUGGING
+	std::cin.get();
+	#endif
 }

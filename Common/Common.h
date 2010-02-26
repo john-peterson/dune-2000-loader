@@ -1,5 +1,6 @@
-// Copyright (C) 2003-2008 Dolphin Project.
-
+///////////////////////////////////////////////////////////////////////////////////
+// Copyright Information
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, version 2.0.
@@ -11,9 +12,7 @@
 
 // A copy of the GPL 2.0 should have been included with the program.
 // If not, see http://www.gnu.org/licenses/
-
-// Official SVN repository and contact information can be found at
-// http://code.google.com/p/dolphin-emu/
+///////////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CONSOLE_H
 #define _CONSOLE_H
@@ -52,9 +51,9 @@ void ClearScreen();
 }
 
 std::string ArrayToString(const u8 *data, u32 size, u32 offset = 0, int line_len = 20, bool Space = true);
-std::string StringFromFormat(const char* format, ...);
-bool CharArrayFromFormatV(char* out, int outsize, const char* format, va_list args);
 bool MsgBox(const char* format, ...);
 std::string GetTimeFormatted();
+std::string DoGetCurrentDirectory();
+std::string ShowError();
 
 #endif // _CONSOLE_H

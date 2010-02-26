@@ -136,7 +136,10 @@ bool RedirectIAT(SDLLHook *DLLHook, PIMAGE_IMPORT_DESCRIPTOR pImportDesc, PVOID 
 	return true;
 }
 
-// Top level routine to find the EXE's imports, and redirect them. All imports should come to this function.
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Top level routine to go through the EXE's imports table, and redirect function calls to those imports.
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 bool HookAPICalls(SDLLHook **DLLHooks, const unsigned int cDLLHooks)
 {
 	//
@@ -174,3 +177,4 @@ bool HookAPICalls(SDLLHook **DLLHooks, const unsigned int cDLLHooks)
 
 	return false;
 }
+////////////////////////////////////////////

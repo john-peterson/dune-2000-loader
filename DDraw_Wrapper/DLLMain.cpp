@@ -18,7 +18,7 @@ Converted from Direct Draw 4 to 7 by Temp2 27 March 2006
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+// ...
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 void *InterceptDllCall( HMODULE hModule, char *szDllName, char *szFunctionName, DWORD pNewFunction )
 {
@@ -74,8 +74,12 @@ void *InterceptDllCall( HMODULE hModule, char *szDllName, char *szFunctionName, 
 	}
 	return( NULL ); 
 }
+//////////////////////////////////////////
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// ...
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 BOOL (WINAPI *pLineTo)(HDC hdc, int nXEnd, int nYEnd);
 BOOL WINAPI LineTo_Hook(HDC hdc, int nXEnd, int nYEnd)
 {
@@ -118,6 +122,7 @@ BOOL WINAPI MoveToEx_Hook(HDC hdc, int X, int Y, LPPOINT lpPoint)
 	AddLog( "MoveToEx" );
 	return hRet;
 }
+//////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////

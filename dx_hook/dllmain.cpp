@@ -18,8 +18,25 @@ You should have received a copy of the GNU General Public License
 along with Dune 2000 Launcher.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dllmain.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Includes
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+#include "dllmain.h"
+/////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hook links
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+/*
+Example usage
+	DLL: DDRAW.DLL
+	Function to hook: DirectDrawCreate
+	Function to replace it with: MyDirectDrawCreate
+
+*/
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 HINSTANCE hinstance = NULL;
 
 SDLLHook D3DHook = {
@@ -47,8 +64,12 @@ SDLLHook Binkw32Hook = {
 };
 SDLLHook *DLLHooks[] = { &D3DHook, &DINPUTHook, &Binkw32Hook};
 const unsigned int cDLLHooks = 3;
+/////////////////////////////////////////////
 
-// main get called every time a process is spawned  
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Main is called every time a process is spawned  
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 BOOL APIENTRY DllMain(HINSTANCE hModule,  DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
 	Console::Open();
@@ -106,6 +127,7 @@ BOOL APIENTRY DllMain(HINSTANCE hModule,  DWORD  ul_reason_for_call, LPVOID lpRe
 		}
 
 		Log("DLL injected into exe\n");
+		// Create hooks
 		HookAPICalls(DLLHooks, cDLLHooks);
 		break;
 
@@ -122,8 +144,12 @@ BOOL APIENTRY DllMain(HINSTANCE hModule,  DWORD  ul_reason_for_call, LPVOID lpRe
 	}
 	return TRUE;
 }
+/////////////////////////////////////////////
 
-//
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// Calls are redirected through these functions
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 HRESULT __stdcall MyDirectDrawCreate(GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter )
 {
 	DirectDrawCreate_Type OldFn = (DirectDrawCreate_Type)DLLHooks[0]->Functions[0].OrigFn;
@@ -189,6 +215,7 @@ void __stdcall MyBinkClose(void *BinkStruct)
 
 	return;
 }
+/////////////////////////////////////////////
 
 
 /*

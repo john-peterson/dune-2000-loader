@@ -1,5 +1,6 @@
-// Copyright (C) 2003-2008 Dolphin Project.
-
+///////////////////////////////////////////////////////////////////////////////////
+// Copyright Information
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, version 2.0.
@@ -11,15 +12,12 @@
 
 // A copy of the GPL 2.0 should have been included with the program.
 // If not, see http://www.gnu.org/licenses/
-
-// Official SVN repository and contact information can be found at
-// http://code.google.com/p/dolphin-emu/
-
+///////////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Includes
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 #include <iostream> // System
 #include <fstream>
 #include <string>
@@ -28,26 +26,19 @@
 #include <sys/timeb.h>
 
 //#include <stdio.h>
-#ifdef _WIN32
-	#include <windows.h>
-#endif
+#include <windows.h>
 //#include <stdlib.h>
 
 #include "Common.h"
-//////////////////////////////////
-
-
+#include "StringUtil.h"
+///////////////////////////////////////////////////////////////////////////////////
 
 namespace Console
 {
 
-
 ///////////////////////////////////////////////////////////////////////////////////
 // Settings
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// Option to compile without logging
-#define LOGGING_ENABLED
-#ifdef LOGGING_ENABLED
 
 // On and off
 bool g_consoleEnable = true;
@@ -69,9 +60,7 @@ static const int MAX_BYTES = 1024*8;
 char LogBuffer[MAX_BYTES];
 std::ofstream *LogFile = NULL;
 #define LOGFILE "Console.txt"
-
-#endif // LOGGING_ENABLED
-///////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -82,9 +71,6 @@ is closed */
 // -------------
 void Open(int width, int height, char* fname)
 {
-#ifdef LOGGING_ENABLED
-#ifdef _WIN32
-
 	AllocConsole();
 
 	SetConsoleTitle(fname);
@@ -96,13 +82,13 @@ void Open(int width, int height, char* fname)
 	SMALL_RECT coo = {0,0,(width - 1),70}; // top, left, right, bottom
 	SetConsoleWindowInfo(__hStdOut, TRUE, &coo);
 
-	// Rsize the window to
+	// Resize the window to
 	MoveWindow(Console::GetHwnd(), 200,0, width*8,70*14, true); // big wide window
 
 	// ---------------------------------------------------------------------------------------
 	// Open a file for writing
 	// --------------------------
-	if(fname)
+	if (fname)
 	{
 		/*
 		for(int i = 0; i < nFiles; i++)
@@ -117,10 +103,6 @@ void Open(int width, int height, char* fname)
 		}*/
 	}
 	// --------------------------------------
-
-
-#endif
-#endif
 }
 
 
@@ -201,11 +183,9 @@ int PrintFile(int a, char *fmt, ...)
 // ------------
 int Print(const char *fmt, ...)
 {
-#ifdef LOGGING_ENABLED
 	// Warning, mind this value
 	static const int MAX_BYTES = 1024*8;
 
-#ifdef _WIN32
 	char s[MAX_BYTES];
 	va_list argptr;
 	int cnt;
@@ -246,10 +226,6 @@ int Print(const char *fmt, ...)
 	// -----------------------
 
 	return(cnt);
-#else
-	return 0;
-#endif // _WIN32
-#endif // LOGGING_ENABLED
 }
 
 
@@ -331,60 +307,6 @@ HWND GetHwnd(void)
 // =================================
 
 
-
-// ===================================================================================
-// For Debugging. Read out an u8 array.
-// ----------------
-std::string ArrayToString(const u8 *data, u32 size, u32 offset, int line_len, bool Spaces)
-{
-	std::string Tmp, Spc;
-	if (Spaces) Spc = " "; else Spc = "";
-	for (u32 i = 0; i < size; i++)
-	{
-		Tmp += StringFromFormat("%02x%s", data[i + offset], Spc.c_str());
-		if(i > 1 && (i + 1) % line_len == 0) Tmp.append("\n"); // break long lines
-	}	
-	return Tmp;
-}
-// ================
-
-
-// ===================================================================================
-// 
-// ---------------------
-std::string StringFromFormat(const char* format, ...)
-{
-	int writtenCount = -1;
-	int newSize = (int)strlen(format) + 4;
-	char *buf = 0;
-	va_list args;
-	while (writtenCount < 0)
-	{
-		delete [] buf;
-		buf = new char[newSize + 1];
-	
-	    va_start(args, format);
-		writtenCount = vsnprintf(buf, newSize, format, args);
-		va_end(args);
-		if (writtenCount >= (int)newSize) {
-			writtenCount = -1;
-		}
-		// ARGH! vsnprintf does no longer return -1 on truncation in newer libc!
-		// WORKAROUND! let's fake the old behaviour (even though it's less efficient).
-		// TODO: figure out why the fix causes an invalid read in strlen called from vsnprintf :(
-//		if (writtenCount >= (int)newSize)
-//			writtenCount = -1;
-		newSize *= 2;
-	}
-
-	buf[writtenCount] = '\0';
-	std::string temp = buf;
-	return temp;
-}
-
-
-
-
 ///////////////////////////////////////////////////////////////////////////
 // Message box
 // ¯¯¯¯¯¯¯¯¯
@@ -421,13 +343,13 @@ bool MsgBox(const char* format, ...)
 
 	return (IDYES == MessageBox(0, buffer, "Information", MB_ICONQUESTION));
 }
-////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
 
 
 ///////////////////////////////////////////////////////////////////////////
 // Time
-// ¯¯¯¯¯¯¯¯¯
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 
 // Return the current time formatted as Minutes:Seconds:Milliseconds in the form 00:00:000
 // tp.time: Seconds since 1970
@@ -448,4 +370,42 @@ std::string GetTimeFormatted()
 
 	return std::string(temp);
 }
-////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////////////////
+// Windows
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+
+std::string DoGetCurrentDirectory()
+{
+	TCHAR currdirPath[MAX_PATH];
+	if (GetCurrentDirectory(MAX_PATH, currdirPath))
+	{
+		//Error
+	}
+	return std::string(currdirPath);
+}
+
+// GetLastError
+std::string ShowError() 
+{ 
+	// Retrieve the system error message for the last-error code
+
+	LPVOID lpMsgBuf;
+	LPVOID lpDisplayBuf;
+	DWORD dw = GetLastError();
+	FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		dw,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR)&lpMsgBuf,
+		0,
+		NULL);
+	
+	return std::string((LPCSTR)lpMsgBuf);
+}
+
+///////////////////////////////////////////////////////////////////////////
