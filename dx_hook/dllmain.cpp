@@ -1,42 +1,13 @@
-/*
-Dune 2000 Launcher
+//This file is part of Dune 2000 Launcher, licensed under GNU GPL 3
 
-
-
-This file is part of Dune 2000 Launcher.
-
-Dune 2000 Launcher is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, version 3.
-
-Dune 2000 Launcher is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Dune 2000 Launcher.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// Includes
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 #include "dllmain.h"
-/////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 // Hook links
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-/*
-Example usage
-	DLL: DDRAW.DLL
-	Function to hook: DirectDrawCreate
-	Function to replace it with: MyDirectDrawCreate
-
-*/
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+//Example usage
+//	DLL: DDRAW.DLL
+//	Function to hook: DirectDrawCreate
+//	Function to replace it with: MyDirectDrawCreate
 HINSTANCE hinstance = NULL;
 
 SDLLHook D3DHook = {
@@ -64,23 +35,14 @@ SDLLHook Binkw32Hook = {
 };
 SDLLHook *DLLHooks[] = { &D3DHook, &DINPUTHook, &Binkw32Hook};
 const unsigned int cDLLHooks = 3;
-/////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main is called every time a process is spawned  
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-BOOL APIENTRY DllMain(HINSTANCE hModule,  DWORD  ul_reason_for_call, LPVOID lpReserved)
-{
-	Console::Open();
-	Console::Print("==================================================================\n");
-	Console::Print("DllMain: %i\n", ul_reason_for_call);
-	Log("==================================================================\n");
-	Log("DllMain: %i\n", ul_reason_for_call);
+BOOL APIENTRY DllMain(HINSTANCE hModule,  DWORD  ul_reason_for_call, LPVOID lpReserved) {
+	OutputDebugStringEx(L"==================================================================\n");
+	OutputDebugStringEx(L"DllMain: %i\n", ul_reason_for_call);
 	//MsgBox("DllMain OK");
 
-	switch (ul_reason_for_call)
-	{
+	switch (ul_reason_for_call)	{
 	case DLL_PROCESS_ATTACH:
 		DisableThreadLibraryCalls(hModule);
 		hinstance = hModule;
@@ -126,7 +88,7 @@ BOOL APIENTRY DllMain(HINSTANCE hModule,  DWORD  ul_reason_for_call, LPVOID lpRe
 			}
 		}
 
-		Log("DLL injected into exe\n");
+		OutputDebugStringEx(L"DLL injected into exe\n");
 		// Create hooks
 		HookAPICalls(DLLHooks, cDLLHooks);
 		break;
@@ -144,34 +106,26 @@ BOOL APIENTRY DllMain(HINSTANCE hModule,  DWORD  ul_reason_for_call, LPVOID lpRe
 	}
 	return TRUE;
 }
-/////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 // Calls are redirected through these functions
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-HRESULT __stdcall MyDirectDrawCreate(GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter )
-{
+HRESULT __stdcall MyDirectDrawCreate(GUID FAR *lpGUID, LPDIRECTDRAW FAR *lplpDD, IUnknown FAR *pUnkOuter ) {
 	DirectDrawCreate_Type OldFn = (DirectDrawCreate_Type)DLLHooks[0]->Functions[0].OrigFn;
 	HRESULT ret = OldFn(lpGUID, lplpDD, pUnkOuter);
-
-	Log("_EXPORT::DirectDrawCreate()\n");
+	OutputDebugStringEx(L"_EXPORT::DirectDrawCreate()\n");
 	if(ret == S_OK && ishooked_ddraw_hooks == false)
 	{
 		HookVTBLCalls((LPVOID *)lplpDD, ddraw_hooks, count_ddraw_hooks, "IDirectDraw");
 		ishooked_ddraw_hooks = true;
 	}
-
 	return ret;
 }
 
-//
-HRESULT __stdcall MyDirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPDIRECTINPUT *lplpDirectInput, LPUNKNOWN pUnkOuter)
-{
+HRESULT __stdcall MyDirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPDIRECTINPUT *lplpDirectInput, LPUNKNOWN pUnkOuter) {
 	DirectInputCreateA_Type OldFn = (DirectInputCreateA_Type)DLLHooks[1]->Functions[0].OrigFn;
 	HRESULT ret = OldFn(hinst, dwVersion, lplpDirectInput, pUnkOuter);
 
-	Log("_EXPORT::DirectInputCreateA(hinst=%#010lx, dwVersion=%#010lx, lplpDirectInput=%#010lx *[%#010lx], pUnkOuter=%#010lx)\n", hinst, dwVersion, lplpDirectInput, (lplpDirectInput != NULL ? *lplpDirectInput : NULL), pUnkOuter);
+	OutputDebugStringEx(L"_EXPORT::DirectInputCreateA(hinst=%#010lx, dwVersion=%#010lx, lplpDirectInput=%#010lx *[%#010lx], pUnkOuter=%#010lx)\n", hinst, dwVersion, lplpDirectInput, (lplpDirectInput != NULL ? *lplpDirectInput : NULL), pUnkOuter);
 	if(ret == S_OK && ishooked_dinput_hooks == false) {
 		HookVTBLCalls((LPVOID *)lplpDirectInput, dinput_hooks, count_dinput_hooks, "IDirectInput");
 		ishooked_dinput_hooks = true;
@@ -180,8 +134,7 @@ HRESULT __stdcall MyDirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPDIREC
 	return ret;
 }
 
- void * __stdcall MyBinkOpen(HANDLE BinkFile, UINT32 Flags)
- {
+ void * __stdcall MyBinkOpen(HANDLE BinkFile, UINT32 Flags) {
 	BinkOpen_Type OldFn = (BinkOpen_Type)DLLHooks[2]->Functions[0].OrigFn;
 	void *ret = OldFn(BinkFile, Flags);
 
@@ -193,13 +146,12 @@ HRESULT __stdcall MyDirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPDIREC
 	g_binkActive = TRUE;
 	g_binkStruct = ret;
 
-	Log("_EXPORT::BinkOpen()\n");
+	OutputDebugStringEx(L"_EXPORT::BinkOpen()\n");
 
 	return ret;
 }
 
-void __stdcall MyBinkClose(void *BinkStruct)
-{
+void __stdcall MyBinkClose(void *BinkStruct) {
 	g_binkActive = FALSE;
 	g_binkStruct = NULL;
 
@@ -211,12 +163,10 @@ void __stdcall MyBinkClose(void *BinkStruct)
 		g_binkCpySurface = NULL;
 	}
 
-	Log("_EXPORT::BinkClose()\n");
+	OutputDebugStringEx(L"_EXPORT::BinkClose()\n");
 
 	return;
 }
-/////////////////////////////////////////////
-
 
 /*
 //__declspec(dllexport) LRESULT CALLBACK hookproc(int ncode,WPARAM wparam,LPARAM lparam)

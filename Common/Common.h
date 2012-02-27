@@ -1,28 +1,15 @@
-///////////////////////////////////////////////////////////////////////////////////
-// Copyright Information
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, version 2.0.
+// Common functions
+// (C) John Peterson, licensed under GNU GPL 3
 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License 2.0 for more details.
+#pragma once
 
-// A copy of the GPL 2.0 should have been included with the program.
-// If not, see http://www.gnu.org/licenses/
-///////////////////////////////////////////////////////////////////////////////////
-
-#ifndef _CONSOLE_H
-#define _CONSOLE_H
-
-#include <iostream> // System
+#include <iostream>
 #include <string>
-//#include <stdlib.h>
-//#include <stdio.h>
+#include <fstream>
 #include <windows.h>
-
+#include <time.h>
+#include <sys/timeb.h>
+using namespace std;
 
 typedef unsigned __int8 u8;
 typedef unsigned __int16 u16;
@@ -34,26 +21,30 @@ typedef signed __int16 s16;
 typedef signed __int32 s32;
 typedef signed __int64 s64;
 
+#define DIR_SEP "/"
+#define DIR_SEP_CHR '/'
 
-namespace Console
-{
+string ShowError();
+void OutputDebugStringEx(const wchar_t* format, ...);
+string ArrayToString(const u8 *data, u32 size, u32 offset = 0, int line_len = 20, bool Space = true);
+wstring Format(const wchar_t *fmt, ...);
 
-void Open(int width = 80, int height = 60, char* fname = "Console");
+wstring GetCurrentDirectoryEx();
+wstring GetPath(const wstring full_path);
+bool FileExist(wstring filename);
+
+bool CharArrayFromFormatV(char* out, int outsize, const char* format, va_list args);
+bool MsgBox(const char* format, ...);
+
+void Open(int width = 80, int height = 60, char* fname = "Log");
 int Print(const char *fmt, ...);
 int PrintFile(int a, const char *fmt, ...);
 void ClearFile();
-void ClearScreen();
 
-#ifdef _WIN32
-	HWND GetHwnd(void);
-#endif
+string GetTimeFormatted();
 
-}
-
-std::string ArrayToString(const u8 *data, u32 size, u32 offset = 0, int line_len = 20, bool Space = true);
-bool MsgBox(const char* format, ...);
-std::string GetTimeFormatted();
-std::string DoGetCurrentDirectory();
-std::string ShowError();
-
-#endif // _CONSOLE_H
+// non-unicode
+void OutputDebugStringExA(const char* format, ...);
+string GetCurrentDirectoryExA();
+string FormatA(const char* format, ...);
+string GetPathA(const wstring full_path);

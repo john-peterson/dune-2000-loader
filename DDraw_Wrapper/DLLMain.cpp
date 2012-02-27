@@ -1,13 +1,13 @@
-/*
-http://forum.gamedeception.net/showpost.php?p=66686&postcount=50
+// (C) John Peterson, licensed under GNU GPL 3
 
-Direct Draw Wrapper
-by 2ci-
-http://2ci.elitecoders.org
-http://www.elitecoders.org
-www.game-deception.com
-Converted from Direct Draw 4 to 7 by Temp2 27 March 2006
-*/
+//http://forum.gamedeception.net/showpost.php?p=66686&postcount=50
+//
+//Direct Draw Wrapper
+//by 2ci-
+//http://2ci.elitecoders.org
+//http://www.elitecoders.org
+//www.game-deception.com
+//Converted from Direct Draw 4 to 7 by Temp2 27 March 2006
 
 #include "Common.h"
 
@@ -16,12 +16,7 @@ Converted from Direct Draw 4 to 7 by Temp2 27 March 2006
 
 #define MakePtr( type, ptr, addValue )( type )( ( DWORD )( ptr ) + ( DWORD )( addValue ) )
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// ...
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-void *InterceptDllCall( HMODULE hModule, char *szDllName, char *szFunctionName, DWORD pNewFunction )
-{
+void *InterceptDllCall( HMODULE hModule, char *szDllName, char *szFunctionName, DWORD pNewFunction ) {
 	PIMAGE_DOS_HEADER pDosHeader;
 	PIMAGE_NT_HEADERS pNTHeader;
 
@@ -45,8 +40,7 @@ void *InterceptDllCall( HMODULE hModule, char *szDllName, char *szFunctionName, 
 	if( pNTHeader->Signature != IMAGE_NT_SIGNATURE || ( pImportDesc = MakePtr( PIMAGE_IMPORT_DESCRIPTOR, pDosHeader, pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress ) ) == ( PIMAGE_IMPORT_DESCRIPTOR )pNTHeader )
 		return( NULL );
 
-	while( pImportDesc->Name )
-	{
+	while( pImportDesc->Name ) {
 		char *szModuleName = MakePtr( char *, pDosHeader,	pImportDesc->Name );
 
 		if( !lstrcmpi( szModuleName, szDllName ) )
@@ -60,10 +54,8 @@ void *InterceptDllCall( HMODULE hModule, char *szDllName, char *szFunctionName, 
 
 	pThunk = MakePtr( PIMAGE_THUNK_DATA, pDosHeader,	pImportDesc->FirstThunk );
 
-	while( pThunk->u1.Function )
-	{
-		if( pThunk->u1.Function == ( DWORD )pOldFunction )
-		{
+	while( pThunk->u1.Function ) {
+		if( pThunk->u1.Function == ( DWORD )pOldFunction ) {
 			VirtualProtect( ( void * )&pThunk->u1.Function, sizeof( DWORD ), PAGE_EXECUTE_READWRITE, &dwOldProtect );
 			pThunk->u1.Function = ( DWORD )pNewFunction;
 			VirtualProtect( ( void * )&pThunk->u1.Function, sizeof( DWORD ), dwOldProtect, &dwOldProtect2 );
@@ -72,14 +64,9 @@ void *InterceptDllCall( HMODULE hModule, char *szDllName, char *szFunctionName, 
 		}
 		pThunk++;
 	}
-	return( NULL ); 
+	return(NULL); 
 }
-//////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// ...
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 BOOL (WINAPI *pLineTo)(HDC hdc, int nXEnd, int nYEnd);
 BOOL WINAPI LineTo_Hook(HDC hdc, int nXEnd, int nYEnd)
 {
@@ -122,19 +109,10 @@ BOOL WINAPI MoveToEx_Hook(HDC hdc, int X, int Y, LPPOINT lpPoint)
 	AddLog( "MoveToEx" );
 	return hRet;
 }
-//////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
 // DllMain
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-bool WINAPI DllMain( HANDLE hInstance, DWORD dwReason, LPVOID lpReserved )
-{
-	if( dwReason == DLL_PROCESS_ATTACH )
-	{
-		Console::Open();
-		Console::ClearFile();
-
+bool WINAPI DllMain( HANDLE hInstance, DWORD dwReason, LPVOID lpReserved ) {
+	if( dwReason == DLL_PROCESS_ATTACH ) {
 		AddLog( "" );
 		AddLog( "----------------------------------------------------------------" );
 		AddLog( "Log Opened" );

@@ -1,77 +1,31 @@
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Copyright Information
+// This file is part of Dune 2000 Launcher, licensed under GNU GPL 3
+
+// Project description
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+//The purpose of this project is to increase the output resolution of Dune 2000 (1998) so that it can be
+//displayed properly on current flat screens that has problems with both the 640x400 and 640x480 resolution
+//that the game produce. In the current form the code is in most parts a copy of a FF8 Launcher by Tobias
+//Sebring (aka Magix). The goal is to modify this code so that it works with Dune 2000.
 
-This file is part of Dune 2000 Launcher.
-
-Dune 2000 Launcher is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, version 3.
-
-Dune 2000 Launcher is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Dune 2000 Launcher.  If not, see <http://www.gnu.org/licenses/>.
-
-////////////////////////////////////////////////////////////////////////////////////////////////////*/
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Project description
+// Current issues
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+//The call to ddraw.dll is not picked up. Can it be because the exe loads the main part of the code from
+//DUNE2000.DAT, and that only calls directly from DUNE2000.EXE are picked up?
 
-The purpose of this project is to increase the output resolution of Dune 2000 (1998) so that it can be
-displayed properly on current flat screens that has problems with both the 640x400 and 640x480 resolution
-that the game produce. In the current form the code is in most parts a copy of a FF8 Launcher by Tobias
-Sebring (aka Magix). The goal is to modify this code so that it works with Dune 2000.
-
-////////////////////////////////////////////////////////////////////////////////////////////////////*/
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Current issues
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-
-The call to ddraw.dll is not picked up. Can it be because the exe loads the main part of the code from
-DUNE2000.DAT, and that only calls directly from DUNE2000.EXE are picked up?
-
-////////////////////////////////////////////////////////////////////////////////////////////////////*/
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// Includes
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 #include "winmain.h"
 #include "../Common/Common.h"
-#include "../Common/StringUtil.h"
-#include "../Common/FileUtil.h"
-/////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-// Declarations and definitions
-// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-_TCHAR g_szAppTitle[] = _T("Dune 2000 Loader v0.1");
+_TCHAR g_szAppTitle[] = _T("Dune 2000 Loader");
 _TCHAR g_szClassName[] = _T("D2kLoader");
 HINSTANCE g_hInst = NULL;
 HWND g_hwndMain = NULL, g_hwndInterface = NULL;
 HMENU g_hMenuMain = NULL;
 HBRUSH g_hbr = NULL;
 DWORD g_dwWindowStyle = 0;
-LPSTR g_lpCmdLine = NULL;
-
+LPWSTR g_lpCmdLine = NULL;
 #define _NL _T("\r\n")
-/////////////////////////////////////////////
 
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR SCmdLine, int iCmdShow)
-{
-	Console::Open(130);
-	Console::ClearFile();
-
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR SCmdLine, int iCmdShow) {
 	g_hInst = hInstance;
 	g_lpCmdLine = SCmdLine;
 
@@ -79,7 +33,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR SCmdLine,
 
 	MSG msg;
 	WNDCLASS wndclass;
-
 	wndclass.cbClsExtra = 0;
 	wndclass.cbWndExtra = 0;
 	wndclass.hbrBackground = (HBRUSH)GetSysColorBrush(COLOR_WINDOW); //(HBRUSH)(COLOR_APPWORKSPACE+1);
@@ -104,49 +57,42 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR SCmdLine,
 	ShowWindow(g_hwndMain, iCmdShow);
 	UpdateWindow(g_hwndMain);
 
-	// ----------------------------------------------------
-	#ifdef SETUP_DEBUGGING
-	// -------------
+#ifdef SETUP_DEBUGGING
 	// Load the game directly
-	LaunchGame(std::string(g_lpCmdLine));
-	#endif
-	// ----------------------
+	LaunchGame(wstring(g_lpCmdLine));
+#endif
 
-	while(GetMessage(&msg, NULL, 0, 0))
-	{
+	while(GetMessage(&msg, NULL, 0, 0)) {
 		if(IsDialogMessage(g_hwndInterface, &msg)) continue;
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 
 	//DestroyMenu(g_hMenuInit);
-
 	return (int)msg.wParam;
 }
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch(message)
-	{
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch(message) {
 	case WM_CREATE:
 		{ //LG
-		g_hwndMain = hwnd;
+			g_hwndMain = hwnd;
 
-		DWORD color = GetSysColor(COLOR_WINDOW);
-		unsigned int c_r = 0, c_g = 0, c_b = 0;
-		c_r = GetRValue(color);
-		c_g = GetGValue(color);
-		c_b = GetBValue(color);
+			DWORD color = GetSysColor(COLOR_WINDOW);
+			unsigned int c_r = 0, c_g = 0, c_b = 0;
+			c_r = GetRValue(color);
+			c_g = GetGValue(color);
+			c_b = GetBValue(color);
 
-		g_hbr = CreateSolidBrush(RGB(c_r-3, c_g-3, c_b-1));
+			g_hbr = CreateSolidBrush(RGB(c_r-3, c_g-3, c_b-1));
 
-		CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_INTERFACE), g_hwndMain, (DLGPROC)InterfaceProc);
+			CreateDialog(g_hInst, MAKEINTRESOURCE(IDD_INTERFACE), g_hwndMain, (DLGPROC)InterfaceProc);
 		
-		RECT rect;
-		GetWindowRect(g_hwndInterface, &rect);
-		AdjustWindowRect(&rect, g_dwWindowStyle, GetMenu(g_hwndMain) != NULL ? true : false);
-		SetWindowPos(g_hwndMain, NULL, 0, 0, rect.right-rect.left, rect.bottom-rect.top, SWP_NOMOVE | SWP_NOZORDER | SWP_NOREPOSITION);
-		ShowWindow(g_hwndInterface, SW_SHOW);
+			RECT rect;
+			GetWindowRect(g_hwndInterface, &rect);
+			AdjustWindowRect(&rect, g_dwWindowStyle, GetMenu(g_hwndMain) != NULL ? true : false);
+			SetWindowPos(g_hwndMain, NULL, 0, 0, rect.right-rect.left, rect.bottom-rect.top, SWP_NOMOVE | SWP_NOZORDER | SWP_NOREPOSITION);
+			ShowWindow(g_hwndInterface, SW_SHOW);
 		}
 		return 0;
 
@@ -177,45 +123,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-LRESULT CALLBACK InterfaceProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch(message)
-	{
+LRESULT CALLBACK InterfaceProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch(message) {
 	case WM_INITDIALOG:
 		{ //LG
-		g_hwndInterface = hwnd;
+			g_hwndInterface = hwnd;
 
-		memset(&g_config, 0, sizeof(g_config));
-		LoadConfig(g_config);
+			memset(&g_config, 0, sizeof(g_config));
+			LoadConfig(g_config);
 
-		//Populate controls
-		HWND hwndDispMode = GetDlgItem(g_hwndInterface, IDC_DDDISPLAYMODE);
-		for(UINT i = 0; i < displaymode_options_count; i++) {
-			ComboBox_AddString(hwndDispMode, displaymode_options[i].name);
-		}
-		ComboBox_SetCurSel(hwndDispMode, g_config.displaymode);
+			//Populate controls
+			HWND hwndDispMode = GetDlgItem(g_hwndInterface, IDC_DDDISPLAYMODE);
+			for(UINT i = 0; i < displaymode_options_count; i++) {
+				ComboBox_AddString(hwndDispMode, displaymode_options[i].name);
+			}
+			ComboBox_SetCurSel(hwndDispMode, g_config.displaymode);
 
-		HWND hwndFSAA = GetDlgItem(g_hwndInterface, IDC_DDFSAA);
-		for(UINT i = 0; i < fsaa_options_count; i++) {
-			ComboBox_AddString(hwndFSAA, fsaa_options[i].name);
-		}
-		ComboBox_SetCurSel(hwndFSAA, g_config.fsaa);
+			HWND hwndFSAA = GetDlgItem(g_hwndInterface, IDC_DDFSAA);
+			for(UINT i = 0; i < fsaa_options_count; i++) {
+				ComboBox_AddString(hwndFSAA, fsaa_options[i].name);
+			}
+			ComboBox_SetCurSel(hwndFSAA, g_config.fsaa);
 
-		HWND hwnd8bitPFix = GetDlgItem(g_hwndInterface, IDC_8BITPFIX);
-		Button_SetCheck(hwnd8bitPFix, (g_config.b8_paletted_textures_fix == 1 ? BST_CHECKED : BST_UNCHECKED));
+			HWND hwnd8bitPFix = GetDlgItem(g_hwndInterface, IDC_8BITPFIX);
+			Button_SetCheck(hwnd8bitPFix, (g_config.b8_paletted_textures_fix == 1 ? BST_CHECKED : BST_UNCHECKED));
 
-		HWND hwndStretch43Ar = GetDlgItem(g_hwndInterface, IDC_STRETCH43AR);
-		Button_SetCheck(hwndStretch43Ar, (g_config.stretch_4_3_ar == 1 ? BST_CHECKED : BST_UNCHECKED));
+			HWND hwndStretch43Ar = GetDlgItem(g_hwndInterface, IDC_STRETCH43AR);
+			Button_SetCheck(hwndStretch43Ar, (g_config.stretch_4_3_ar == 1 ? BST_CHECKED : BST_UNCHECKED));
 
-		HWND hwndExpertMode = GetDlgItem(g_hwndInterface, IDC_EXPERTMODE);
-		Button_SetCheck(hwndExpertMode, (g_config.expert_mode == 1 ? BST_CHECKED : BST_UNCHECKED));
+			HWND hwndExpertMode = GetDlgItem(g_hwndInterface, IDC_EXPERTMODE);
+			Button_SetCheck(hwndExpertMode, (g_config.expert_mode == 1 ? BST_CHECKED : BST_UNCHECKED));
 		
-		return true;
+			return true;
 		}
 
 	case WM_COMMAND:
-		switch(LOWORD(wParam))
-		{
+		switch(LOWORD(wParam)) {
 		case IDC_BTPLAY:
 			LaunchGame(g_lpCmdLine);
 			return TRUE;
@@ -254,7 +197,6 @@ LRESULT CALLBACK InterfaceProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 			return TRUE;
 		}
 
-
 	//Sets background of child dialog boxes to transparent
 	/*case WM_CTLCOLORDLG:
 		{
@@ -282,12 +224,9 @@ LRESULT CALLBACK InterfaceProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 	return FALSE;
 }
 
-LRESULT CALLBACK AboutProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK AboutProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	static _TCHAR *buffer = NULL;
-
-	switch(message)
-	{
+	switch(message) {
 	case WM_INITDIALOG:
 		{ //LG
 		
@@ -314,8 +253,7 @@ LRESULT CALLBACK AboutProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 		}
 
 	case WM_COMMAND:
-		switch(LOWORD(wParam))
-		{
+		switch(LOWORD(wParam)) {
 		case IDOK:
 		case IDCANCEL:
 			if(buffer != NULL) {
@@ -350,77 +288,59 @@ LRESULT CALLBACK AboutProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 		return (INT_PTR)g_hbr;
 	
 	}
-
 	return FALSE;
 }
 
-// Get the FF8.exe path and load the game
-void LaunchGame(std::string SCmdLine)
-{
-	std::string exe_path, dir_path, libPath;
+// Get the target exe path and load it
+void LaunchGame(wstring SCmdLine) {
+	wstring exe_path, dir_path, libPath;
 
 	// Use a custom exe path
 	#ifdef SETUP_DEBUGGING
-	SCmdLine = "TestTarget.exe";
+	SCmdLine = L"TestTarget2.exe";
 	//SCmdLine = "I:\\Games\\Dune 2000 (1998)\\DUNE2000.EXE";
 	//SCmdLine = "C:\\Files\\Games\\Final Fantasy VIII (1998)\\Game\\FF8.exe";
 	//SCmdLine = "C:\\Program Files (XP)\\Microsoft Virtual PC\\Virtual PC.exe";
 	#endif
 
 	// Get path
-	if(File::Exists(SCmdLine))
-	{
+	if(FileExist(SCmdLine)) {
 		dir_path = GetPath(SCmdLine);
 		exe_path = SCmdLine;
-	}
-	else
-	{
+	} else {
 		// From registry
 		// Dune 2000 saves the path to the main exe in [HKEY_LOCAL_MACHINE\SOFTWARE\Westwood\Dune 2000]\InstallPath
 		// when the game is installed. But it's not needed to run the game (the information in
 		// RESOURCE.CFG is enough) so we can't definately know that we have a registry path.
-		/*
-		HKEY hFF8_key = NULL;
 
-		if(ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Square Soft, Inc\\FINAL FANTASY VIII\\1.00"), 0, KEY_QUERY_VALUE, &hFF8_key))
-		{
-			if(ERROR_SUCCESS == RegQueryValueEx(hFF8_key, _T("AppPath"), NULL, NULL, (LPBYTE)&dir_path, &dir_path_size))
-			{
-				_sntprintf_s((_TCHAR *)&exe_path, MAX_PATH, MAX_PATH, _T("%s\\FF8.exe"), dir_path);
-			}
-		}
-		*/
+		//HKEY hFF8_key = NULL;
+		//if (ERROR_SUCCESS == RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Square Soft, Inc\\FINAL FANTASY VIII\\1.00"), 0, KEY_QUERY_VALUE, &hFF8_key)) {
+		//	if (ERROR_SUCCESS == RegQueryValueEx(hFF8_key, _T("AppPath"), NULL, NULL, (LPBYTE)&dir_path, &dir_path_size))
+		//		_sntprintf_s((_TCHAR *)&exe_path, MAX_PATH, MAX_PATH, _T("%s\\FF8.exe"), dir_path);
+		//}
 	}
 
 	// Dll directory
-	libPath = StringFromFormat("%s\\DX_Hook.dll", DoGetCurrentDirectory().c_str());
+	libPath = Format(L"%s\\DX_Hook.dll", GetCurrentDirectoryEx().c_str());
 		
-	// ---------------------------------------------------------------------------------
 	// Inject our library into the target process
-	// --------------------
-	if (SCmdLine == "")
-	{
+	if (SCmdLine.empty()) {
 		MessageBox(NULL,
 		_T("DUNE2000.exe path missing from both command line and registry.\n\n")
 		_T("Correct Usage:\nc:\\games\\D2k_loader.exe c:\\games\\DUNE2000.exe"),
 		_T("Dune 2000 Loader"), MB_OK | MB_ICONERROR);
 	}
-	else if (!File::Exists(SCmdLine))
-	{
-		MessageBoxA(NULL, StringFromFormat("Could not find '%s'", SCmdLine.c_str()).c_str(),
-		"Dune 2000 Loader", MB_OK | MB_ICONERROR);	
-	}
-	else if (!File::Exists(libPath))
-	{
-		MessageBoxA(NULL, StringFromFormat("Could not find '%s'", libPath.c_str()).c_str(),
-		"Dune 2000 Loader", MB_OK | MB_ICONERROR);	
-	}
-	else
-	{
+	else if (!FileExist(SCmdLine)) {
+		MessageBox(NULL, Format(L"Could not find '%s'", SCmdLine.c_str()).c_str(),
+		L"Dune 2000 Loader", MB_OK | MB_ICONERROR);	
+	} else if (!FileExist(libPath)) {
+		MessageBox(NULL, Format(L"Could not find '%s'", libPath.c_str()).c_str(),
+		L"Dune 2000 Loader", MB_OK | MB_ICONERROR);	
+	} else {
 		//installCOMHook();
 
 		// Logging
-		Console::Print("Path:\n   %s\n   %s\n   %s\n", SCmdLine.c_str(), exe_path.c_str(), libPath.c_str());
+		OutputDebugStringEx(L"Path:\n   %s\n   %s\n   %s\n", SCmdLine.c_str(), exe_path.c_str(), libPath.c_str());
 		//return;
 
 		// Create process ID templates to store the new process ID in
@@ -431,11 +351,8 @@ void LaunchGame(std::string SCmdLine)
 		si.cb = sizeof(si);
 
 		// Launch exe
-		if (!CreateProcessA(NULL, (LPSTR)exe_path.c_str(), NULL, NULL, FALSE, 0, NULL, NULL /*(LPSTR)dir_path.c_str()*/, &si, &pi))
-		{
-			MessageBoxA(NULL,
-			StringFromFormat("CreateProcess returned an error: %s\n", ShowError().c_str()).c_str(),
-			"Dune 2000 Loader", MB_OK | MB_ICONERROR);
+		if (!CreateProcessA(NULL, (LPSTR)exe_path.c_str(), NULL, NULL, FALSE, 0, NULL, NULL /*(LPSTR)dir_path.c_str()*/, &si, &pi)) {
+			MessageBoxA(NULL, FormatA("CreateProcess returned an error: %s\n", ShowError().c_str()).c_str(), "Dune 2000 Loader", MB_OK | MB_ICONERROR);
 		}
 
 		// The thread used for the target process
@@ -448,32 +365,30 @@ void LaunchGame(std::string SCmdLine)
 		WriteProcessMemory(pi.hProcess, pLibRemote, libPath.c_str(), libPath.length(), NULL );
 
 		// Create remote thread
-		Console::Print("CreateRemoteThread\n");
+		OutputDebugStringEx(L"CreateRemoteThread\n");
 		hThread = ::CreateRemoteThread(pi.hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "LoadLibraryA"), pLibRemote, 0, NULL);
-		if (hThread == NULL)
-		{
-			printf("CreateRemoteThread failed: %s\n", ShowError());
+		if (hThread == NULL) {
+			OutputDebugStringEx(L"CreateRemoteThread: %s\n", ShowError().c_str());
 		}
 		
-		// Pause loader		
+		// Wait for LoadLibrary
 		WaitForSingleObject(hThread, INFINITE);
 		GetExitCodeThread(hThread, &hLibModule);	
-		// Close thread
-		Console::Print("Load thread done\n");
+		// Dll is loaded, close thread
+		OutputDebugStringEx(L"Load thread done\n");
 		CloseHandle(hThread);
-		//
 		VirtualFreeEx(pi.hProcess, pLibRemote, sizeof(libPath), MEM_RELEASE);
-
 		// Destroy the application window, 
 		DestroyWindow(g_hwndMain);
+		
 		// Wait for the target process to return before terminating the launcher process
 		WaitForSingleObject(pi.hProcess, INFINITE);
 		// Unload DLL
-		Console::Print("Unload DLL\n");
+		OutputDebugStringEx(L"Unload DLL\n");
 		hThread = ::CreateRemoteThread(pi.hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "FreeLibraryA"), (LPVOID)hLibModule, 0, NULL);
 		WaitForSingleObject(hThread, INFINITE);
 		CloseHandle(hThread);
-		// Close FF8.exe
+		// Close target process
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 
@@ -482,7 +397,7 @@ void LaunchGame(std::string SCmdLine)
 	}
 	// ---------------------------------------
 	
-	#ifdef SETUP_DEBUGGING
-	std::cin.get();
-	#endif
+#ifdef SETUP_DEBUGGING
+	cin.get();
+#endif
 }
